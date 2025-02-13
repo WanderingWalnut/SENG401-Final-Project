@@ -1,0 +1,11 @@
+# Node modules for React
+/frontend/node_modules
+
+# Python virtual environment
+/backend/venv
+
+# Flask bytecode
+/backend/__pycache__
+
+# OS files
+.DS_Store

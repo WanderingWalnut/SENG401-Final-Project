@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { Grid, Paper, TextField, Button, Typography, Box } from "@mui/material";
-import axios from "axios";
+import { Grid, Paper, TextField, Button, Typography, Box, Alert } from "@mui/material";
+import axios from "axios";  // Import axios for API requests
 import { useNavigate } from "react-router-dom"; // For navigation
 
-const SignUp = () => {
+const Login = () => {
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
   });
 
-  const [message, setMessage] = useState(""); // Success or error message
+  const [error, setError] = useState(""); // Store error messages
   const navigate = useNavigate(); // Hook for navigation
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,14 +18,21 @@ const SignUp = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Reset error message
 
     try {
-      const response = await axios.post("http://localhost:5001/api/signup", formData);
-      setMessage(response.data.message); // Show success message
-      navigate("/login"); // Redirect user after successful login
-      setFormData({ name: "", email: "", password: "" }); // Clear form
-    } catch (error: any) {
-      setMessage(error.response?.data?.error || "Signup failed"); // Show error message
+      const response = await axios.post("http://localhost:5001/api/login", formData);
+
+      if (response.data.user_id) {
+        localStorage.setItem("user_id", response.data.user_id); // Save user ID in localStorage
+        navigate("/chat"); // Redirect user after successful login
+      }
+    } catch (err: any) {
+      if (err.response) {
+        setError(err.response.data.error || "Login failed.");
+      } else {
+        setError("Server error. Please try again later.");
+      }
     }
   };
 
@@ -58,8 +64,8 @@ const SignUp = () => {
       >
         <Box
           component="img"
-          src="/assets/GreenGradient.svg"
-          alt="Sign Up"
+          src="./assets/GreenGradient.svg"
+          alt="Login"
           sx={{
             width: "100%",
             height: "100%",
@@ -68,7 +74,7 @@ const SignUp = () => {
         />
       </Grid>
 
-      {/* Right Side (Sign-Up Form Section) */}
+      {/* Right Side (Login Form Section) */}
       <Grid
         item
         xs={12}
@@ -90,26 +96,12 @@ const SignUp = () => {
           }}
         >
           <Typography variant="h4" gutterBottom>
-            Sign Up
+            Login
           </Typography>
 
-          {message && (
-            <Typography variant="body2" color="error" sx={{ mb: 2 }}>
-              {message}
-            </Typography>
-          )}
+          {error && <Alert severity="error">{error}</Alert>} {/* Display error messages */}
 
           <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              margin="normal"
-              required
-            />
-
             <TextField
               fullWidth
               label="Email"
@@ -139,7 +131,7 @@ const SignUp = () => {
               fullWidth
               sx={{ mt: 2 }}
             >
-              Sign Up
+              Login
             </Button>
           </form>
         </Paper>
@@ -148,4 +140,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default Login;

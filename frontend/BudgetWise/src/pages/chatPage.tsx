@@ -26,24 +26,22 @@ const COLORS = ["#00C49F", "#FF8042", "#0088FE", "#FFBB28", "#FF4444", "#AA66CC"
 const ChatPage = () => {
     const styles: { [key: string]: CSSProperties } = {
         chatPageContainer: {
-            display: "flex",
-            flexWrap: "wrap",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
             height: "100vh",
             width: "100%",
             backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "cover", 
-            backgroundRepeat: "no-repeat", 
-            backgroundPosition: "center", 
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
             color: "white",
             padding: "10px",
             boxSizing: "border-box",
+            gap: "35px",
         },
         leftSection: {
-            width: "100%",
-            maxWidth: "500px",
             display: "flex",
             flexDirection: "column",
-            height: "100%",
             gap: "10px",
         },
         topLeftBox: {
@@ -66,6 +64,11 @@ const ChatPage = () => {
             borderRadius: "12px",
             padding: "20px",
             backgroundColor: "rgba(0, 0, 0, 0.2)",
+        },
+        summaryTitle: {
+            padding: "20px",
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            
         },
         summaryTitle: {
             fontSize: "1.2rem",

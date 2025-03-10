@@ -1,13 +1,24 @@
+import { backdropClasses } from '@mui/material';
 import React from 'react';
 
-const LandingPage: React.FC = () => {
+function LandingPage()  {
   return (
-    <div>
+    <div style={styles.main}>
       <h1>Welcome to BudgetWise</h1>
       <h2>Save More. Live Better.</h2>
-      <button>Sign Up</button>
+      <button style={styles.button}>Sign Up</button>
     </div>
   );
 };
 
+const styles = {
+    main : {
+
+    },
+    button: {
+        color: 'white',
+        backgroundColor: '#04CA04',
+    },
+
+}
 export default LandingPage;

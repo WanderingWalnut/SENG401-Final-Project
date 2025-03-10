@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Grid, Paper, TextField, Button, Typography, Box } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For navigation
+import logo from "../assets/GreenGradient.svg"
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -58,7 +59,7 @@ const SignUp = () => {
       >
         <Box
           component="img"
-          src="/assets/GreenGradient.svg"
+          src= {logo}
           alt="Sign Up"
           sx={{
             width: "100%",
@@ -141,6 +142,9 @@ const SignUp = () => {
             >
               Sign Up
             </Button>
+            <p>
+              Already have an account? <a href="/login">Login</a>
+            </p>
           </form>
         </Paper>
       </Grid>

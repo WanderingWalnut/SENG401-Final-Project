@@ -28,23 +28,32 @@ const ChatPage = () => {
         chatPageContainer: {
             display: "flex",
             flexWrap: "wrap",
-            height: "100vh",
+            minHeight: "100vh",
             width: "100%",
             backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "cover", 
-            backgroundRepeat: "no-repeat", 
-            backgroundPosition: "center", 
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
             color: "white",
-            padding: "10px",
+            padding: "20px",
             boxSizing: "border-box",
+            alignItems: "stretch",
+            overflowY: "auto",
+            gap: "20px",
+        },
+        mainContent: {
+            display: "flex",
+            flexWrap: "wrap",
+            width: "100%",
+            flexGrow: 1,
+            gap: "20px",
         },
         leftSection: {
-            width: "100%",
-            maxWidth: "500px",
             display: "flex",
             flexDirection: "column",
-            height: "100%",
-            gap: "10px",
+            gap: "20px",
+            flex: "3",
+            minWidth: "300px",
         },
         topLeftBox: {
             flex: 1,
@@ -67,6 +76,17 @@ const ChatPage = () => {
             padding: "20px",
             backgroundColor: "rgba(0, 0, 0, 0.2)",
         },
+        rightSection: {
+            flex: "2",
+            minHeight: "300px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderLeft: "2px solid #444",
+            borderRadius: "12px",
+            padding: "20px",
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+        },
         summaryTitle: {
             fontSize: "1.2rem",
             fontWeight: "bold",
@@ -83,57 +103,83 @@ const ChatPage = () => {
             fontWeight: "bold",
             color: "#00C49F",
         },
-        rightSection: {
-            flex: 1,
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            borderLeft: "2px solid #444",
-            borderRadius: "12px",
-            padding: "20px",
-            backgroundColor: "rgba(0, 0, 0, 0.2)",
+        "@media (max-width: 1024px)": {
+            mainContent: {
+                flexDirection: "column",
+                gap: "20px",
+            },
+            leftSection: {
+                width: "100%",
+                flex: "none",
+            },
+            rightSection: {
+                width: "100%",
+                flex: "none",
+                borderLeft: "none",
+                borderTop: "2px solid #444",
+            },
+        },
+        "@media (max-width: 768px)": {
+            chatPageContainer: {
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "20px",
+            },
+            mainContent: {
+                flexDirection: "column",
+                gap: "20px",
+            },
+            rightSection: {
+                order: "-1",
+                minHeight: "400px",
+                width: "100%",
+            },
+            leftSection: {
+                width: "100%",
+            },
         },
     };
 
     return (
         <div style={styles.chatPageContainer}>
-            <div style={styles.leftSection}>
-                <div style={styles.topLeftBox}>
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={lineData}>
-                            <XAxis dataKey="month" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip />
-                            <Line type="monotone" dataKey="savings" stroke="#00C49F" strokeWidth={3} dot={{ r: 4 }} />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-                <div style={styles.bottomLeftBox}>
-                    <div style={styles.summaryTitle}>Expense Summary</div>
-                    <PieChart width={200} height={200}>
-                        <Pie data={pieData} cx={100} cy={100} innerRadius={40} outerRadius={80} fill="#8884d8" dataKey="value">
-                            {pieData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                    </PieChart>
-                    <div style={styles.totalExpense}>Total: $8900</div>
-                    <div style={styles.expenseSummary}>
-                        <div>
-                            <p>Health & Rec: $200</p>
-                            <p>Restaurants: $400</p>
-                            <p>Entertainment: $300</p>
-                        </div>
-                        <div>
-                            <p>Grocery: $500</p>
-                            <p>Financial Services: $150</p>
-                            <p>Personal Expenses: $350</p>
+            <div style={styles.mainContent}>
+                <div style={styles.rightSection}>Right Box</div>
+                <div style={styles.leftSection}>
+                    <div style={styles.topLeftBox}>
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={lineData}>
+                                <XAxis dataKey="month" stroke="#ccc" />
+                                <YAxis stroke="#ccc" />
+                                <Tooltip />
+                                <Line type="monotone" dataKey="savings" stroke="#00C49F" strokeWidth={3} dot={{ r: 4 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div style={styles.bottomLeftBox}>
+                        <div style={styles.summaryTitle}>Expense Summary</div>
+                        <PieChart width={200} height={200}>
+                            <Pie data={pieData} cx={100} cy={100} innerRadius={40} outerRadius={80} fill="#8884d8" dataKey="value">
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                        </PieChart>
+                        <div style={styles.totalExpense}>Total: $8900</div>
+                        <div style={styles.expenseSummary}>
+                            <div>
+                                <p>Health & Rec: $200</p>
+                                <p>Restaurants: $400</p>
+                                <p>Entertainment: $300</p>
+                            </div>
+                            <div>
+                                <p>Grocery: $500</p>
+                                <p>Financial Services: $150</p>
+                                <p>Personal Expenses: $350</p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div style={styles.rightSection}>Right Box</div>
         </div>
     );
 };

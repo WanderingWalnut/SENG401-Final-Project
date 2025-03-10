@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
@@ -33,6 +34,10 @@ const ChatPage = () => {
         }
     };
 
+=======
+import React from "react";
+function chatPage() {
+>>>>>>> 21b4cedee9e17d2de3b543a529aae720b7c4b7f0
     return (
         <div className="dashboard-container">
             <div className="left-panel">

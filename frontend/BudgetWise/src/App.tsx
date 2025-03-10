@@ -7,11 +7,6 @@ import ChatPage from "./pages/chatPage";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/landingPage";
 
-interface User {
-  id: number;
-  name: string;
-}
-
 function App() {
   return (
     <Router>

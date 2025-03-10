@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, Paper, TextField, Button, Typography, Box, Alert } from "@mui/material";
+import { Grid, Paper, TextField, Button, Typography, Box, Alert, useMediaQuery, useTheme } from "@mui/material";
 import axios from "axios";  // Import axios for API requests
 import { useNavigate } from "react-router-dom"; // For navigation
 import GreenGradient from "../assets/GreenGradient.svg"
@@ -12,6 +12,8 @@ const Login = () => {
 
   const [error, setError] = useState(""); // Store error messages
   const navigate = useNavigate(); // Hook for navigation
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -56,7 +58,7 @@ const Login = () => {
         xs={12}
         md={6}
         sx={{
-          display: "flex",
+          display: isSmallScreen ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
           bgcolor: "#f5f5f5",
@@ -65,7 +67,7 @@ const Login = () => {
       >
         <Box
           component="img"
-          src= {GreenGradient}
+          src={GreenGradient}
           alt="Login"
           sx={{
             width: "100%",

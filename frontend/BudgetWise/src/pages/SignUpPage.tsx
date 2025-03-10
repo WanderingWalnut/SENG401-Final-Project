@@ -50,7 +50,7 @@ const SignUp = () => {
         xs={12}
         md={6}
         sx={{
-          display: "flex",
+          display: { xs: "none", md: "flex" },
           alignItems: "center",
           justifyContent: "center",
           bgcolor: "#f5f5f5",
@@ -59,7 +59,7 @@ const SignUp = () => {
       >
         <Box
           component="img"
-          src= {GreenGradient}
+          src={GreenGradient}
           alt="Sign Up"
           sx={{
             width: "100%",

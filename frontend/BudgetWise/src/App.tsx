@@ -4,6 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import SignUp from "./pages/SignUpPage"; // Import the SignUpPage component
+import ChatPage from "./pages/chatPage";
 
 interface User {
   id: number;
@@ -84,6 +85,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/chat" element={<ChatPage />} />
+
       </Routes>
     </Router>
   );

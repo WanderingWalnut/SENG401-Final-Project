@@ -66,8 +66,8 @@ const styles = {
         backgroundPosition: "center",
         padding: "0 10%",
         position: "relative",
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", 
-        overflow: "hidden", // Corrected property, enables vertical scrolling if content overflows
+        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+        overflow: "auto", // Allow scrolling in the container 
     },
     nav: {
         display: "flex",

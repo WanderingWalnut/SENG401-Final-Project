@@ -6,6 +6,8 @@ import SignUp from "./pages/SignUpPage"; // Import the SignUpPage component
 import ChatPage from "./pages/chatPage";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/landingPage";
+import UploadPage from './pages/UploadPage';
+
 
 function App() {
   return (
@@ -15,7 +17,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/chat" element={<ChatPage />} />
-
+        <Route path="/upload" element={<UploadPage />} />
         
       </Routes>
     </Router>

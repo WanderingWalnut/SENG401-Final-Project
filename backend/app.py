@@ -2,16 +2,20 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
+from OpenAI import OpenAIService
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5173")  # Adjust to match your frontend port
+
+# Initialize the OpenAI service
+ai_service = OpenAIService()
 
 # Function to create a new MySQL connection
 def create_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="password",
+        password="N@veed786",
         database="BudgetWise"
     )
 # User Signup Route
@@ -78,6 +82,16 @@ def login():
 
     except Error as e:
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+
+@app.route("/api/analyze-spending/<int:user_id>", methods=["GET"])
+def analyze_spending(user_id):
+    try:
+        analysis = ai_service.analyze_spending(user_id)
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({"error": f"Analysis error: {str(e)}"}), 500
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host='0.0.0.0')

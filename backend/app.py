@@ -9,12 +9,16 @@ import pdfplumber
 import re
 from datetime import datetime
 from collections import defaultdict
+from pdf_processor import PDFProcessor
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app, origins="http://localhost:5173")  # Adjust to match your frontend port
 
-# Initialize the OpenAI service
+# Initialize services
+load_dotenv()
 ai_service = OpenAIService()
+pdf_processor = PDFProcessor()
 
 # Add this configuration after your existing configurations
 UPLOAD_FOLDER = 'uploads'
@@ -36,6 +40,7 @@ def create_connection():
         password="N@veed786",
         database="BudgetWise"
     )
+
 # User Signup Route
 @app.route('/api/signup', methods=['POST'])
 def signup():
@@ -108,15 +113,18 @@ def analyze_spending(user_id):
         return jsonify(analysis)
     except Exception as e:
         return jsonify({"error": f"Analysis error: {str(e)}"}), 500
-
-# Add this new route to handle PDF uploads
-@app.route('/api/upload-pdf', methods=['POST'])
-def upload_pdf():
+    
+@app.route('/api/upload-and-analyze-pdf', methods=['POST'])
+def upload_and_analyze_pdf():
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         
         file = request.files['file']
+        user_id = request.form.get('user_id')
+        
+        if not user_id:
+            return jsonify({'error': 'User ID is required'}), 400
         
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
@@ -126,145 +134,54 @@ def upload_pdf():
             file_path = os.path.join(UPLOAD_FOLDER, filename)
             file.save(file_path)
             
-            # Here you can add code to process the PDF and store data in your database
-            # For now, we'll just return success
+            # Process PDF using LangChain
+            transactions = pdf_processor.process_pdf(file_path)
+            
+            if not transactions:
+                return jsonify({'error': 'Could not extract data from PDF'}), 400
+                
+            # Save transactions to database
+            db = create_connection()
+            cursor = db.cursor()
+            
+            transactions_added = 0
+            
+            for transaction in transactions:
+                try:
+                    cursor.execute(
+                        "INSERT INTO budget_data (user_id, expense_category, amount, transaction_date, description) VALUES (%s, %s, %s, %s, %s)",
+                        (
+                            user_id,
+                            transaction['expense_category'],
+                            transaction['amount'],
+                            transaction['transaction_date'],
+                            transaction['description']
+                        )
+                    )
+                    transactions_added += 1
+                except Error as e:
+                    print(f"Error inserting transaction: {str(e)}")
+                    
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            # Clean up the uploaded file
+            try:
+                os.remove(file_path)
+            except:
+                pass
+            
             return jsonify({
-                'message': 'File uploaded successfully',
-                'filename': filename
+                'message': 'PDF processed successfully',
+                'transactions_count': transactions_added
             }), 200
         else:
             return jsonify({'error': 'Invalid file type'}), 400
             
     except Exception as e:
-        print(f"Upload error: {str(e)}")
-        return jsonify({'error': 'Server error during upload'}), 500
-
-@app.route('/api/process-pdf/<filename>', methods=['POST'])
-def process_pdf(filename):
-    try:
-        # Get user_id from request
-        data = request.json
-        user_id = data.get('user_id')
-        
-        if not user_id:
-            return jsonify({'error': 'User ID is required'}), 400
-            
-        # Construct the file path
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        
-        if not os.path.exists(file_path):
-            return jsonify({'error': 'File not found'}), 404
-            
-        # Extract transactions from PDF
-        transactions = extract_data_from_pdf(file_path)
-        
-        if not transactions:
-            return jsonify({'error': 'Could not extract data from PDF'}), 400
-            
-        # Save transactions to database
-        db = create_connection()
-        cursor = db.cursor()
-        
-        transactions_added = 0
-        
-        for transaction in transactions:
-            try:
-                cursor.execute(
-                    "INSERT INTO budget_data (user_id, expense_category, amount, transaction_date, description) VALUES (%s, %s, %s, %s, %s)",
-                    (
-                        user_id,
-                        transaction['expense_category'],
-                        transaction['amount'],
-                        transaction['transaction_date'],
-                        transaction['description']
-                    )
-                )
-                transactions_added += 1
-            except Error as e:
-                print(f"Error inserting transaction: {str(e)}")
-                
-        db.commit()
-        cursor.close()
-        db.close()
-        
-        return jsonify({
-            'message': 'PDF processed successfully',
-            'transactions_count': transactions_added
-        }), 200
-        
-    except Exception as e:
-        print(f"Process PDF error: {str(e)}")
+        print(f"Process error: {str(e)}")
         return jsonify({'error': f'Error processing PDF: {str(e)}'}), 500
-
-def extract_data_from_pdf(file_path):
-    # Categories matching our database schema
-    categories = {
-        'Food': ['grocery', 'supermarket', 'food', 'market', 'walmart', 'target', 'kroger', 'safeway', 'trader joe'],
-        'Dining': ['restaurant', 'cafe', 'coffee', 'starbucks', 'mcdonald', 'burger', 'pizza', 'taco', 'dining'],
-        'Transportation': ['uber', 'lyft', 'taxi', 'transit', 'train', 'bus', 'gas', 'fuel', 'parking'],
-        'Utilities': ['electric', 'water', 'gas', 'internet', 'phone', 'utility', 'bill', 'cable', 'netflix', 'spotify'],
-        'Shopping': ['amazon', 'ebay', 'store', 'retail', 'clothing', 'shop', 'mall', 'purchase'],
-        'Entertainment': ['movie', 'theater', 'cinema', 'concert', 'event', 'ticket', 'subscription'],
-        'Health': ['pharmacy', 'doctor', 'medical', 'healthcare', 'fitness', 'gym', 'walgreens', 'cvs'],
-        'Rent': ['rent', 'lease', 'housing', 'apartment'],
-        'Other': []  # Default category
-    }
-    
-    # Format to match budget_data table structure
-    transactions = []
-    
-    try:
-        with pdfplumber.open(file_path) as pdf:
-            for page in pdf.pages:
-                text = page.extract_text()
-                if not text:
-                    continue
-                
-                # Look for transaction patterns (date, description, amount)
-                # This pattern may need adjustment based on the specific PDF format
-                transaction_matches = re.findall(r'(\d{1,2}/\d{1,2}(?:/\d{2,4})?)\s+([A-Za-z0-9\s\.\,\&\-\']+?)\s+(\$?\d+\.\d{2})', text)
-                
-                for date_str, description, amount_str in transaction_matches:
-                    # Clean up the amount (remove $ and convert to float)
-                    amount = float(amount_str.replace('$', '').strip())
-                    
-                    # Standardize date format (assuming MM/DD/YYYY or MM/DD/YY)
-                    try:
-                        if len(date_str.split('/')) == 3:
-                            date_obj = datetime.strptime(date_str, '%m/%d/%Y' if len(date_str.split('/')[-1]) == 4 else '%m/%d/%y')
-                        else:
-                            # If year is missing, use current year
-                            current_year = datetime.now().year
-                            date_obj = datetime.strptime(f"{date_str}/{current_year}", '%m/%d/%Y')
-                        
-                        transaction_date = date_obj.strftime('%Y-%m-%d')
-                    except ValueError:
-                        # If date parsing fails, use current date
-                        transaction_date = datetime.now().strftime('%Y-%m-%d')
-                    
-                    # Determine category based on description
-                    expense_category = 'Other'
-                    desc_lower = description.lower()
-                    
-                    for cat, keywords in categories.items():
-                        if any(keyword in desc_lower for keyword in keywords):
-                            expense_category = cat
-                            break
-                    
-                    # Add to transactions in format matching budget_data table
-                    transactions.append({
-                        'expense_category': expense_category,
-                        'amount': amount,
-                        'transaction_date': transaction_date,
-                        'description': description.strip()
-                    })
-        
-        return transactions
-    
-    except Exception as e:
-        print(f"Error extracting data from PDF: {str(e)}")
-        return None
-    
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host='0.0.0.0')

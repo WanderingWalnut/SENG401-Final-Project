@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState } from "react";
+import React, { CSSProperties, useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -11,22 +11,29 @@ import { PieChart, Pie, Cell } from "recharts";
 import "../App.css";
 import backgroundImage from "../assets/GreenGradient.svg";
 
-const lineData = [
-  { month: "Jan", savings: 200 },
-  { month: "Feb", savings: 150 },
-  { month: "Mar", savings: 300 },
-  { month: "Apr", savings: 250 },
-  { month: "May", savings: 400 },
-];
+// TypeScript interfaces for our data structures
+interface MonthlySpending {
+  month: string;
+  total_amount: number;
+}
 
-const pieData = [
-  { name: "Health & Recreation", value: 200 },
-  { name: "Restaurants", value: 400 },
-  { name: "Entertainment", value: 300 },
-  { name: "Retail & Grocery", value: 500 },
-  { name: "Financial Services", value: 150 },
-  { name: "Personal Expenses", value: 350 },
-];
+interface LineChartData {
+  month: string;
+  spending: number;
+}
+
+interface CategorySummary {
+  expense_category: string;
+  count: number;
+  total_amount: number;
+  earliest_date: string;
+  latest_date: string;
+}
+
+interface PieChartData {
+  name: string;
+  value: number;
+}
 
 const COLORS = [
   "#00C49F",
@@ -40,6 +47,71 @@ const COLORS = [
 const ChatPage = () => {
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pieData, setPieData] = useState<PieChartData[]>([]);
+  const [totalExpense, setTotalExpense] = useState<number>(0);
+  const [lineData, setLineData] = useState<LineChartData[]>([]);
+
+  // Function to format month for display
+  const formatMonth = (monthStr: string) => {
+    const [year, month] = monthStr.split("-");
+    const date = new Date(parseInt(year), parseInt(month) - 1);
+    return date.toLocaleString("default", { month: "short" });
+  };
+
+  // Function to fetch category summary data
+  const fetchCategorySummary = async () => {
+    try {
+      const userId = localStorage.getItem("user_id") || "1";
+      const response = await fetch(
+        `http://localhost:5001/api/check-transactions/${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.category_summary) {
+        // Transform the category summary into pie chart data
+        const transformedData: PieChartData[] = data.category_summary.map(
+          (item: CategorySummary) => ({
+            name: item.expense_category,
+            value: Math.abs(item.total_amount),
+          })
+        );
+
+        // Calculate total expense
+        const total = transformedData.reduce(
+          (sum, item) => sum + item.value,
+          0
+        );
+
+        setPieData(transformedData);
+        setTotalExpense(total);
+      }
+
+      if (data.monthly_spending) {
+        // Transform monthly spending data for the line chart
+        const transformedLineData: LineChartData[] = data.monthly_spending.map(
+          (item: MonthlySpending) => ({
+            month: formatMonth(item.month),
+            spending: item.total_amount,
+          })
+        );
+        setLineData(transformedLineData);
+      }
+    } catch (error) {
+      console.error("Error fetching category summary:", error);
+    }
+  };
+
+  // Fetch data when component mounts
+  useEffect(() => {
+    fetchCategorySummary();
+  }, []);
 
   const handleAnalyze = async () => {
     setIsLoading(true);
@@ -280,7 +352,7 @@ const ChatPage = () => {
                 <Tooltip />
                 <Line
                   type="monotone"
-                  dataKey="savings"
+                  dataKey="spending"
                   stroke="#00C49F"
                   strokeWidth={3}
                   dot={{ r: 4 }}
@@ -309,17 +381,27 @@ const ChatPage = () => {
             </PieChart>
             <div style={styles.summaryContent}>
               <div style={styles.summaryTitle}>Expense Summary</div>
-              <div style={styles.totalExpense}>Total: $8900</div>
+              <div style={styles.totalExpense}>
+                Total: ${totalExpense.toFixed(2)}
+              </div>
               <div style={styles.expenseSummary}>
                 <div>
-                  <p>Health & Rec: $200</p>
-                  <p>Restaurants: $400</p>
-                  <p>Entertainment: $300</p>
+                  {pieData
+                    .slice(0, Math.ceil(pieData.length / 2))
+                    .map((item, index) => (
+                      <p key={index}>
+                        {item.name}: ${item.value.toFixed(2)}
+                      </p>
+                    ))}
                 </div>
                 <div>
-                  <p>Grocery: $500</p>
-                  <p>Financial Services: $150</p>
-                  <p>Personal Expenses: $350</p>
+                  {pieData
+                    .slice(Math.ceil(pieData.length / 2))
+                    .map((item, index) => (
+                      <p key={index}>
+                        {item.name}: ${item.value.toFixed(2)}
+                      </p>
+                    ))}
                 </div>
               </div>
             </div>

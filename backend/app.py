@@ -254,6 +254,18 @@ def check_transactions(user_id):
         """, (user_id,))
         category_summary = cursor.fetchall()
         
+        # Get monthly spending totals
+        cursor.execute("""
+            SELECT 
+                DATE_FORMAT(transaction_date, '%Y-%m') as month,
+                SUM(ABS(amount)) as total_amount
+            FROM budget_data 
+            WHERE user_id = %s
+            GROUP BY DATE_FORMAT(transaction_date, '%Y-%m')
+            ORDER BY month ASC
+        """, (user_id,))
+        monthly_spending = cursor.fetchall()
+        
         cursor.close()
         db.close()
         
@@ -261,7 +273,8 @@ def check_transactions(user_id):
             'total_transactions': total,
             'transactions_by_date': transactions_by_date,
             'recent_transactions': recent_transactions,
-            'category_summary': category_summary
+            'category_summary': category_summary,
+            'monthly_spending': monthly_spending
         })
 
     except Error as e:

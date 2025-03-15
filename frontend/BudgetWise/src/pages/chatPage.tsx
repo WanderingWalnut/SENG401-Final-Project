@@ -46,6 +46,9 @@ const COLORS = [
 
 const ChatPage = () => {
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [formattedAnalysis, setFormattedAnalysis] = useState<string | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [pieData, setPieData] = useState<PieChartData[]>([]);
   const [totalExpense, setTotalExpense] = useState<number>(0);
@@ -132,11 +135,16 @@ const ChatPage = () => {
       if (data.analysis) {
         setAnalysis(data.analysis);
       }
+
+      if (data.formatted_analysis) {
+        setFormattedAnalysis(data.formatted_analysis);
+      }
     } catch (error) {
       console.error("Error:", error);
       setAnalysis(
         "Sorry, I encountered an error while analyzing your spending."
       );
+      setFormattedAnalysis(null);
     }
     setIsLoading(false);
   };
@@ -286,8 +294,8 @@ const ChatPage = () => {
       margin: "20px",
       padding: "20px",
       borderRadius: "12px",
-      whiteSpace: "pre-wrap",
       overflowY: "auto",
+      color: "white",
     },
     placeholderText: {
       color: "rgba(255, 255, 255, 0.5)",
@@ -323,8 +331,10 @@ const ChatPage = () => {
         <div style={styles.rightSection}>
           <div style={styles.analysisContainer}>
             <div style={styles.analysisText}>
-              {analysis ? (
-                analysis
+              {formattedAnalysis ? (
+                <div dangerouslySetInnerHTML={{ __html: formattedAnalysis }} />
+              ) : analysis ? (
+                <pre style={{ whiteSpace: "pre-wrap" }}>{analysis}</pre>
               ) : (
                 <div style={styles.placeholderText}>
                   Click "Analyze My Spending" to get insights about your

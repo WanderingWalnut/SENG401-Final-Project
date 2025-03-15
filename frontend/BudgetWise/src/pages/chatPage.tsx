@@ -124,14 +124,14 @@ const ChatPage = () => {
     },
     rightSection: {
       flex: "2",
-      minHeight: "300px",
       display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
+      flexDirection: "column",
+      gap: "20px",
+      minHeight: "calc(100vh - 100px)",
       borderLeft: "2px solid #444",
       borderRadius: "12px",
-      padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
+      padding: "20px",
     },
     summaryContent: {
       display: "flex",
@@ -195,21 +195,40 @@ const ChatPage = () => {
       },
     },
     analysisContainer: {
+      flex: 1,
       display: "flex",
       flexDirection: "column",
-      height: "100%",
       width: "100%",
       overflowY: "auto",
-      maxHeight: "calc(100vh - 100px)",
-      padding: "20px",
+      borderRadius: "12px",
+      height: "calc(100vh - 250px)",
+      position: "relative",
     },
     analysisText: {
-      flex: 1,
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
       backgroundColor: "rgba(255, 255, 255, 0.1)",
+      margin: "20px",
       padding: "20px",
       borderRadius: "12px",
-      marginBottom: "20px",
       whiteSpace: "pre-wrap",
+      overflowY: "auto",
+    },
+    placeholderText: {
+      color: "rgba(255, 255, 255, 0.5)",
+      textAlign: "center",
+      marginTop: "40px",
+      fontSize: "16px",
+    },
+    buttonContainer: {
+      width: "100%",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      padding: "10px 0",
     },
     analyzeButton: {
       padding: "16px 32px",
@@ -219,9 +238,10 @@ const ChatPage = () => {
       color: "white",
       cursor: "pointer",
       fontSize: "18px",
-      transition: "background-color 0.2s",
-      alignSelf: "center",
-      marginTop: "20px",
+      transition: "all 0.2s ease",
+      "&:hover": {
+        backgroundColor: "#00b48f",
+      },
     },
   };
 
@@ -230,7 +250,18 @@ const ChatPage = () => {
       <div style={styles.mainContent}>
         <div style={styles.rightSection}>
           <div style={styles.analysisContainer}>
-            {analysis && <div style={styles.analysisText}>{analysis}</div>}
+            <div style={styles.analysisText}>
+              {analysis ? (
+                analysis
+              ) : (
+                <div style={styles.placeholderText}>
+                  Click "Analyze My Spending" to get insights about your
+                  spending patterns
+                </div>
+              )}
+            </div>
+          </div>
+          <div style={styles.buttonContainer}>
             <button
               onClick={handleAnalyze}
               style={styles.analyzeButton}

@@ -49,7 +49,7 @@ const UploadPage = () => {
       return;
     }
 
-    setUploadStatus("Uploading...");
+    setUploadStatus("Uploading and processing...");
     setShowPopup(true);
 
     const formData = new FormData();
@@ -65,73 +65,45 @@ const UploadPage = () => {
     formData.append("user_id", userId);
 
     try {
-      const response = await fetch("http://localhost:5001/api/upload-pdf", {
-        method: "POST",
-        body: formData,
-      });
+      // Upload and process in one step
+      const response = await fetch(
+        "http://localhost:5001/api/upload-and-analyze-pdf",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        setUploadStatus("File uploaded successfully!");
-        setUploadedFileName(data.filename);
+        setUploadStatus(
+          `Success! Added ${data.transactions_count} transactions to your budget.`
+        );
         setSelectedFile(null);
+
+        // Automatically trigger analysis after successful upload
+        const analysisResponse = await fetch(
+          `http://localhost:5001/api/analyze-spending/${userId}`,
+          {
+            method: "GET",
+          }
+        );
+
+        const analysisData = await analysisResponse.json();
+
+        if (analysisResponse.ok) {
+          // Navigate to dashboard or show analysis
+          window.location.href = "/chat";
+        } else {
+          console.error("Analysis failed:", analysisData.error);
+        }
       } else {
         setUploadStatus(data.error || "Upload failed. Please try again.");
       }
     } catch (error) {
-      setUploadStatus("Error uploading file. Please try again.");
+      setUploadStatus("Error processing file. Please try again.");
       console.error("Upload error:", error);
-    }
-
-    setTimeout(() => setShowPopup(false), 3000);
-  };
-
-  const handleAnalyze = async () => {
-    if (!uploadedFileName) {
-      setUploadStatus("Please upload a file first");
-      setShowPopup(true);
-      setTimeout(() => setShowPopup(false), 3000);
-      return;
-    }
-
-    setUploadStatus("Analyzing PDF...");
-    setShowPopup(true);
-
-    const userId = localStorage.getItem("user_id");
-    if (!userId) {
-      setUploadStatus("Please log in to analyze files");
-      setTimeout(() => setShowPopup(false), 3000);
-      return;
-    }
-
-    try {
-      const extractResponse = await fetch(
-        `http://localhost:5001/api/process-pdf/${uploadedFileName}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ user_id: userId }),
-        }
-      );
-
-      const extractData = await extractResponse.json();
-
-      if (extractResponse.ok) {
-        setUploadStatus(
-          `Success! Added ${extractData.transactions_count} transactions to your budget.`
-        );
-        setUploadedFileName(null);
-      } else {
-        setUploadStatus(
-          extractData.error || "Analysis failed. Please try again."
-        );
-      }
-    } catch (error) {
-      setUploadStatus("Error analyzing file. Please try again.");
-      console.error("Analysis error:", error);
     }
 
     setTimeout(() => setShowPopup(false), 3000);
@@ -234,6 +206,9 @@ const UploadPage = () => {
       display: "flex",
       alignItems: "center",
       gap: "10px",
+      transform: "translateX(0)",
+      opacity: 1,
+      transition: "transform 0.3s ease-out, opacity 0.3s ease-out",
     },
     successPopup: {
       backgroundColor: "rgba(0, 196, 159, 0.9)",
@@ -250,22 +225,6 @@ const UploadPage = () => {
         transform: "translateX(0)",
         opacity: 1,
       },
-    },
-    buttonContainer: {
-      display: "flex",
-      gap: "10px",
-      width: "100%",
-      justifyContent: "center",
-    },
-    analyzeButton: {
-      padding: "12px 24px",
-      backgroundColor: uploadedFileName ? "#00C49F" : "#666",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: uploadedFileName ? "pointer" : "not-allowed",
-      fontSize: "16px",
-      transition: "background-color 0.2s",
     },
   };
 
@@ -295,30 +254,21 @@ const UploadPage = () => {
           )}
         </div>
         {uploadStatus && <p style={styles.status}>{uploadStatus}</p>}
-        <div style={styles.buttonContainer}>
-          <button style={styles.button} onClick={handleButtonClick}>
-            {selectedFile ? "Upload PDF" : "Select PDF"}
-          </button>
-          <button
-            style={styles.analyzeButton}
-            onClick={handleAnalyze}
-            disabled={!uploadedFileName}
-          >
-            Analyze PDF
-          </button>
-        </div>
+        <button style={styles.button} onClick={handleButtonClick}>
+          {selectedFile ? "Upload & Process PDF" : "Select PDF"}
+        </button>
       </div>
 
       {showPopup && uploadStatus && (
         <div
           style={{
             ...styles.popup,
-            ...(uploadStatus.includes("success")
+            ...(uploadStatus.includes("Success")
               ? styles.successPopup
               : styles.errorPopup),
           }}
         >
-          {uploadStatus.includes("success") ? <span>✓</span> : <span>⚠️</span>}
+          {uploadStatus.includes("Success") ? <span>✓</span> : <span>⚠️</span>}
           {uploadStatus}
         </div>
       )}

@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState, useEffect } from "react";
+import React, { CSSProperties, useState } from "react";
 import {
   LineChart,
   Line,
@@ -37,27 +37,16 @@ const COLORS = [
   "#AA66CC",
 ];
 
-interface Message {
-  text: string;
-  isAi: boolean;
-}
-
 const ChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputText, setInputText] = useState("");
+  const [analysis, setAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
-
-    const userMessage = { text: inputText, isAi: false };
-    setMessages((prev) => [...prev, userMessage]);
-    setInputText("");
+  const handleAnalyze = async () => {
     setIsLoading(true);
-
     try {
+      const userId = localStorage.getItem("user_id") || "1";
       const response = await fetch(
-        "http://localhost:5001/api/analyze-spending/1",
+        `http://localhost:5001/api/analyze-spending/${userId}`,
         {
           method: "GET",
           headers: {
@@ -69,18 +58,14 @@ const ChatPage = () => {
       const data = await response.json();
 
       if (data.analysis) {
-        const aiMessage = { text: data.analysis, isAi: true };
-        setMessages((prev) => [...prev, aiMessage]);
+        setAnalysis(data.analysis);
       }
     } catch (error) {
       console.error("Error:", error);
-      const errorMessage = {
-        text: "Sorry, I encountered an error while processing your request.",
-        isAi: true,
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setAnalysis(
+        "Sorry, I encountered an error while analyzing your spending."
+      );
     }
-
     setIsLoading(false);
   };
 
@@ -209,61 +194,34 @@ const ChatPage = () => {
         alignItems: "center",
       },
     },
-    chatContainer: {
+    analysisContainer: {
       display: "flex",
       flexDirection: "column",
       height: "100%",
       width: "100%",
       overflowY: "auto",
       maxHeight: "calc(100vh - 100px)",
-    },
-    messagesContainer: {
-      flex: 1,
       padding: "20px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "10px",
-      overflowY: "auto",
-
     },
-    message: {
-      maxWidth: "80%",
-      padding: "12px 16px",
+    analysisText: {
+      flex: 1,
+      backgroundColor: "rgba(255, 255, 255, 0.1)",
+      padding: "20px",
       borderRadius: "12px",
-      marginBottom: "8px",
-      wordBreak: "break-word",
+      marginBottom: "20px",
+      whiteSpace: "pre-wrap",
     },
-    userMessage: {
-      backgroundColor: "#00C49F",
-      alignSelf: "flex-end",
-    },
-    aiMessage: {
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-      alignSelf: "flex-start",
-    },
-    inputContainer: {
-      display: "flex",
-      padding: "20px",
-      gap: "10px",
-    },
-    input: {
-      flex: 1,
-      padding: "12px",
-      borderRadius: "8px",
-      border: "1px solid #444",
-      backgroundColor: "rgba(255, 255, 255, 0.1)",
-      color: "white",
-      fontSize: "16px",
-    },
-    sendButton: {
-      padding: "12px 24px",
+    analyzeButton: {
+      padding: "16px 32px",
       borderRadius: "8px",
       border: "none",
       backgroundColor: "#00C49F",
       color: "white",
       cursor: "pointer",
-      fontSize: "16px",
+      fontSize: "18px",
       transition: "background-color 0.2s",
+      alignSelf: "center",
+      marginTop: "20px",
     },
   };
 
@@ -271,40 +229,15 @@ const ChatPage = () => {
     <div style={styles.chatPageContainer}>
       <div style={styles.mainContent}>
         <div style={styles.rightSection}>
-          <div style={styles.chatContainer}>
-            <div style={styles.messagesContainer}>
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  style={{
-                    ...styles.message,
-                    ...(message.isAi ? styles.aiMessage : styles.userMessage),
-                  }}
-                >
-                  {message.text}
-                </div>
-              ))}
-              {isLoading && (
-                <div style={styles.aiMessage}>Analyzing your spending...</div>
-              )}
-            </div>
-            <div style={styles.inputContainer}>
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                placeholder="Ask for spending analysis..."
-                style={styles.input}
-              />
-              <button
-                onClick={handleSendMessage}
-                style={styles.sendButton}
-                disabled={isLoading}
-              >
-                Send
-              </button>
-            </div>
+          <div style={styles.analysisContainer}>
+            {analysis && <div style={styles.analysisText}>{analysis}</div>}
+            <button
+              onClick={handleAnalyze}
+              style={styles.analyzeButton}
+              disabled={isLoading}
+            >
+              {isLoading ? "Analyzing..." : "Analyze My Spending"}
+            </button>
           </div>
         </div>
         <div style={styles.leftSection}>

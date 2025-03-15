@@ -109,9 +109,28 @@ def login():
 @app.route("/api/analyze-spending/<int:user_id>", methods=["GET"])
 def analyze_spending(user_id):
     try:
+        # Check if user exists
+        db = create_connection()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        cursor.close()
+        db.close()
+
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+
+        # Get the analysis
         analysis = ai_service.analyze_spending(user_id)
+        
+        # Check if there was an error
+        if "error" in analysis:
+            return jsonify(analysis), 400 if "No transactions found" in analysis["error"] else 500
+            
         return jsonify(analysis)
+        
     except Exception as e:
+        print(f"Error in analyze_spending endpoint: {str(e)}")
         return jsonify({"error": f"Analysis error: {str(e)}"}), 500
     
 @app.route('/api/upload-and-analyze-pdf', methods=['POST'])
@@ -182,6 +201,71 @@ def upload_and_analyze_pdf():
     except Exception as e:
         print(f"Process error: {str(e)}")
         return jsonify({'error': f'Error processing PDF: {str(e)}'}), 500
+
+@app.route("/api/check-transactions/<int:user_id>", methods=["GET"])
+def check_transactions(user_id):
+    try:
+        db = create_connection()
+        cursor = db.cursor(dictionary=True)
+        
+        # Get total count
+        cursor.execute("SELECT COUNT(*) as total FROM budget_data WHERE user_id = %s", (user_id,))
+        total = cursor.fetchone()['total']
+        
+        # Get transactions grouped by date to see when they were added
+        cursor.execute("""
+            SELECT 
+                DATE(transaction_date) as date,
+                COUNT(*) as transactions_count,
+                SUM(amount) as total_amount
+            FROM budget_data 
+            WHERE user_id = %s 
+            GROUP BY DATE(transaction_date)
+            ORDER BY date DESC
+        """, (user_id,))
+        transactions_by_date = cursor.fetchall()
+        
+        # Get recent transactions with full details
+        cursor.execute("""
+            SELECT 
+                transaction_date,
+                description,
+                amount,
+                expense_category,
+                id as transaction_id
+            FROM budget_data 
+            WHERE user_id = %s 
+            ORDER BY transaction_date DESC 
+            LIMIT 10
+        """, (user_id,))
+        recent_transactions = cursor.fetchall()
+        
+        # Get summary by category
+        cursor.execute("""
+            SELECT 
+                expense_category,
+                COUNT(*) as count,
+                SUM(amount) as total_amount,
+                MIN(transaction_date) as earliest_date,
+                MAX(transaction_date) as latest_date
+            FROM budget_data 
+            WHERE user_id = %s 
+            GROUP BY expense_category
+        """, (user_id,))
+        category_summary = cursor.fetchall()
+        
+        cursor.close()
+        db.close()
+        
+        return jsonify({
+            'total_transactions': total,
+            'transactions_by_date': transactions_by_date,
+            'recent_transactions': recent_transactions,
+            'category_summary': category_summary
+        })
+
+    except Error as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host='0.0.0.0')

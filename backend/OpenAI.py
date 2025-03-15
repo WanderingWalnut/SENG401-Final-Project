@@ -24,7 +24,6 @@ class OpenAIService:
             cursor = connection.cursor(dictionary=True)
 
             # Fetch transactions for the user
-
             query = """
             SELECT expense_category, amount, transaction_date, description
             FROM budget_data
@@ -42,18 +41,22 @@ class OpenAIService:
         
         except Exception as e:
              print(f"Error fetching transactions: {str(e)}")
-             return None
+             raise Exception(f"Database error: {str(e)}")
 
     def analyze_spending(self, user_id):
         """
         Analyze spending patterns for a specific user
         """
         try:
-            #Get transactions from the database
+            # Get transactions from the database
             transactions = self.get_user_transactions(user_id)
 
             if not transactions:
-                return "No transactions found for the user"
+                return {
+                    "error": "No transactions found. Please upload a bank statement first.",
+                    "total_spent": 0,
+                    "spending_by_category": {}
+                }
             
             # Format the transactions for the AI
             transaction_summary = ""
@@ -110,9 +113,11 @@ class OpenAIService:
             Keep the response clear, concise, and organized with bullet points.
             """
 
+            print(f"Analyzing spending for user {user_id} with {len(transactions)} transactions")
+            
             # Call the OpenAI API
             response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
+                model="gpt-4-turbo-preview",  # Fixed model name
                 messages=[
                     {
                         "role": "system",
@@ -123,18 +128,25 @@ class OpenAIService:
                         "content": prompt
                     }
                 ],
-                max_tokens=500,
+                max_tokens=1000,  # Increased token limit
                 temperature=0.7
             )
 
-            # Return the response as a dictionary
-            return {
+            analysis_result = {
                 "analysis": response.choices[0].message.content,
                 "total_spent": total_spent,
                 "spending_by_category": categories
             }
+            
+            print(f"Analysis completed successfully for user {user_id}")
+            return analysis_result
         
         except Exception as e:
-            return {"error": f"Analysis error: {str(e)}"}
+            print(f"Error in analyze_spending: {str(e)}")
+            return {
+                "error": f"Analysis error: {str(e)}",
+                "total_spent": 0,
+                "spending_by_category": {}
+            }
 
 

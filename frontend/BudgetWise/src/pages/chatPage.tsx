@@ -11,6 +11,7 @@ import { PieChart, Pie, Cell } from "recharts";
 import "../App.css";
 import backgroundImage from "../assets/GreenGradient.svg";
 import { useMediaQuery } from "react-responsive";
+import Navbar from "../components/ui/navbar";
 
 // TypeScript interfaces for our data structures
 interface MonthlySpending {
@@ -128,6 +129,23 @@ const ChatPage = () => {
     fetchCategorySummary();
   }, []);
 
+  // Add effect to prevent body scrolling
+  useEffect(() => {
+    // Save the original styles
+    const originalOverflow = document.body.style.overflow;
+    const originalHeight = document.body.style.height;
+
+    // Set styles to prevent scrolling
+    document.body.style.overflow = "hidden";
+    document.body.style.height = "100vh";
+
+    // Cleanup function to restore original styles when component unmounts
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.height = originalHeight;
+    };
+  }, []);
+
   const handleAnalyze = async () => {
     setIsLoading(true);
     try {
@@ -162,10 +180,17 @@ const ChatPage = () => {
   };
 
   const styles: { [key: string]: CSSProperties } = {
+    pageWrapper: {
+      paddingTop: "72px", // Add padding to account for the fixed navbar
+      width: "100%",
+      height: "100vh", // Use exact viewport height
+      overflow: "hidden", // Prevent scrolling on the main container
+      boxSizing: "border-box" as const,
+    },
     chatPageContainer: {
       display: "flex",
       flexWrap: "wrap",
-      minHeight: "100vh",
+      height: "calc(100vh - 72px)", // Exact height minus navbar
       width: "100%",
       backgroundImage: `url(${backgroundImage})`,
       backgroundSize: "cover",
@@ -175,7 +200,7 @@ const ChatPage = () => {
       padding: "20px",
       boxSizing: "border-box",
       alignItems: "stretch",
-      overflowY: "auto",
+      overflow: "hidden", // Prevent scrolling
       gap: "20px",
       ...(isMobile && {
         flexDirection: "column",
@@ -186,8 +211,9 @@ const ChatPage = () => {
       display: "flex",
       flexWrap: "wrap",
       width: "100%",
-      flexGrow: 1,
+      height: "100%", // Fill available height
       gap: "20px",
+      overflow: "hidden", // Prevent scrolling
       ...(isTablet && {
         flexDirection: "column",
       }),
@@ -199,12 +225,15 @@ const ChatPage = () => {
       flex: "3",
       minWidth: "200px",
       maxWidth: "600px",
+      height: "100%", // Fill available height
       ...(isTablet && {
         width: "100%",
         flex: "none",
+        height: "50%", // Take half the height on tablet
       }),
       ...(isMobile && {
         width: "100%",
+        height: "50%", // Take half the height on mobile
       }),
     },
     topLeftBox: {
@@ -216,6 +245,7 @@ const ChatPage = () => {
       borderRadius: "12px",
       padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
+      minHeight: "45%", // Ensure minimum height
     },
     bottomLeftBox: {
       flex: 1,
@@ -227,6 +257,7 @@ const ChatPage = () => {
       borderRadius: "12px",
       padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
+      minHeight: "40%", // Ensure minimum height
       ...(isMobile && {
         flexDirection: "column",
         alignItems: "center",
@@ -237,20 +268,22 @@ const ChatPage = () => {
       display: "flex",
       flexDirection: "column",
       gap: "20px",
-      minHeight: "calc(100vh - 100px)",
+      height: "100%", // Fill available height
       borderLeft: "2px solid #444",
       borderRadius: "12px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
       padding: "20px",
+      boxSizing: "border-box" as const,
       ...(isTablet && {
         width: "100%",
         flex: "none",
         borderLeft: "none",
         borderTop: "2px solid #444",
+        height: "50%", // Take half the height on tablet
       }),
       ...(isMobile && {
         order: -1,
-        minHeight: "400px",
+        height: "50%", // Take half the height on mobile
         width: "100%",
       }),
     },
@@ -259,6 +292,7 @@ const ChatPage = () => {
       flexDirection: "column",
       gap: "10px",
       flex: "1",
+      overflow: "auto", // Allow scrolling if needed
     },
     summaryTitle: {
       fontSize: "1.2rem",
@@ -270,6 +304,7 @@ const ChatPage = () => {
       justifyContent: "space-between",
       width: "100%",
       fontSize: "0.9rem",
+      overflow: "auto", // Allow scrolling if needed
     },
     totalExpense: {
       fontSize: "1.5rem",
@@ -281,10 +316,9 @@ const ChatPage = () => {
       display: "flex",
       flexDirection: "column",
       width: "100%",
-      overflowY: "auto",
-      borderRadius: "12px",
-      height: "calc(100vh - 250px)",
       position: "relative",
+      borderRadius: "12px",
+      overflow: "hidden", // Hide overflow but allow inner scrolling
     },
     analysisText: {
       position: "absolute",
@@ -293,10 +327,10 @@ const ChatPage = () => {
       right: 0,
       bottom: 0,
       backgroundColor: "rgba(255, 255, 255, 0.1)",
-      margin: "20px",
+      margin: "0", // Remove margin to maximize space
       padding: "20px",
       borderRadius: "12px",
-      overflowY: "auto",
+      overflowY: "auto", // Allow vertical scrolling
       color: "white",
     },
     placeholderText: {
@@ -311,6 +345,8 @@ const ChatPage = () => {
       justifyContent: "center",
       alignItems: "center",
       padding: "10px 0",
+      marginTop: "auto", // Push to bottom
+      marginBottom: "10px",
     },
     analyzeButton: {
       padding: "16px 32px",
@@ -334,142 +370,151 @@ const ChatPage = () => {
   };
 
   return (
-    <div style={styles.chatPageContainer}>
-      <div style={styles.mainContent}>
-        <div style={styles.rightSection}>
-          <div style={styles.analysisContainer}>
-            <div style={styles.analysisText}>
-              {formattedAnalysis ? (
-                <div dangerouslySetInnerHTML={{ __html: formattedAnalysis }} />
-              ) : analysis ? (
-                <pre style={{ whiteSpace: "pre-wrap" }}>{analysis}</pre>
-              ) : (
-                <div style={styles.placeholderText}>
-                  Click "Analyze My Spending" to get insights about your
-                  spending patterns
-                </div>
-              )}
+    <div style={styles.pageWrapper}>
+      <Navbar username="User" />
+      <div style={styles.chatPageContainer}>
+        <div style={styles.mainContent}>
+          <div style={styles.rightSection}>
+            <div style={styles.analysisContainer}>
+              <div style={styles.analysisText}>
+                {formattedAnalysis ? (
+                  <div
+                    dangerouslySetInnerHTML={{ __html: formattedAnalysis }}
+                  />
+                ) : analysis ? (
+                  <pre style={{ whiteSpace: "pre-wrap" }}>{analysis}</pre>
+                ) : (
+                  <div style={styles.placeholderText}>
+                    Click "Analyze My Spending" to get insights about your
+                    spending patterns
+                  </div>
+                )}
+              </div>
+            </div>
+            <div style={styles.buttonContainer}>
+              <button
+                onClick={handleAnalyze}
+                style={styles.analyzeButton}
+                disabled={isLoading}
+                onMouseEnter={handleButtonHover}
+                onMouseLeave={handleButtonLeave}
+              >
+                {isLoading ? "Analyzing..." : "Analyze My Spending"}
+              </button>
             </div>
           </div>
-          <div style={styles.buttonContainer}>
-            <button
-              onClick={handleAnalyze}
-              style={styles.analyzeButton}
-              disabled={isLoading}
-              onMouseEnter={handleButtonHover}
-              onMouseLeave={handleButtonLeave}
-            >
-              {isLoading ? "Analyzing..." : "Analyze My Spending"}
-            </button>
-          </div>
-        </div>
-        <div style={styles.leftSection}>
-          <div style={styles.topLeftBox}>
-            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-              <LineChart
-                data={lineData}
-                margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
-              >
-                <XAxis dataKey="month" stroke="#ccc" tick={{ fill: "#ccc" }} />
-                <YAxis
-                  stroke="#ccc"
-                  tick={{ fill: "#ccc" }}
-                  domain={[0, Math.ceil(maxSpending * 1.2)]}
-                  allowDataOverflow={false}
-                  tickFormatter={(value) => `$${value}`}
-                />
-                <Tooltip
-                  formatter={(value) => [`$${value}`, "Spending"]}
-                  contentStyle={{
-                    backgroundColor: "rgba(0, 0, 0, 0.8)",
-                    border: "none",
-                    color: "white",
-                  }}
-                  labelStyle={{ color: "#00C49F" }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="spending"
-                  stroke="#00C49F"
-                  strokeWidth={3}
-                  dot={{
-                    r: 4,
-                    fill: "#00C49F",
-                    strokeWidth: 2,
-                    stroke: "#fff",
-                  }}
-                  activeDot={{
-                    r: 6,
-                    fill: "#fff",
-                    stroke: "#00C49F",
-                    strokeWidth: 2,
-                  }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div style={styles.bottomLeftBox}>
-            <PieChart width={200} height={200}>
-              <Pie
-                data={pieData}
-                cx={100}
-                cy={100}
-                innerRadius={40}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                paddingAngle={2}
-                label={false}
-                labelLine={false}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    stroke="rgba(255,255,255,0.3)"
-                    strokeWidth={1}
+          <div style={styles.leftSection}>
+            <div style={styles.topLeftBox}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={lineData}
+                  margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                >
+                  <XAxis
+                    dataKey="month"
+                    stroke="#ccc"
+                    tick={{ fill: "#ccc" }}
                   />
-                ))}
-              </Pie>
-              {/* <Tooltip
-                formatter={(value) => {
-                  // Handle different value types
-                  const numValue =
-                    typeof value === "number"
-                      ? value
-                      : parseFloat(String(value));
-                  return [`$${numValue.toFixed(2)}`, "Amount"];
+                  <YAxis
+                    stroke="#ccc"
+                    tick={{ fill: "#ccc" }}
+                    domain={[0, Math.ceil(maxSpending * 1.2)]}
+                    allowDataOverflow={false}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip
+                    formatter={(value) => [`$${value}`, "Spending"]}
+                    contentStyle={{
+                      backgroundColor: "rgba(0, 0, 0, 0.8)",
+                      border: "none",
+                      color: "white",
+                    }}
+                    labelStyle={{ color: "#00C49F" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="spending"
+                    stroke="#00C49F"
+                    strokeWidth={3}
+                    dot={{
+                      r: 4,
+                      fill: "#00C49F",
+                      strokeWidth: 2,
+                      stroke: "#fff",
+                    }}
+                    activeDot={{
+                      r: 6,
+                      fill: "#fff",
+                      stroke: "#00C49F",
+                      strokeWidth: 2,
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div style={styles.bottomLeftBox}>
+              <div
+                style={{
+                  width: "40%",
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                contentStyle={{
-                  backgroundColor: "White",
-                  border: "none",
-                  color: "white",
-                }}
-              /> */}
-            </PieChart>
-            <div style={styles.summaryContent}>
-              <div style={styles.summaryTitle}>Expense Summary</div>
-              <div style={styles.totalExpense}>
-                Total: ${totalExpense.toFixed(2)}
+              >
+                <PieChart width={150} height={150}>
+                  <Pie
+                    data={pieData}
+                    cx={75}
+                    cy={75}
+                    innerRadius={30}
+                    outerRadius={60}
+                    fill="#8884d8"
+                    dataKey="value"
+                    paddingAngle={2}
+                    label={false}
+                    labelLine={false}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                        stroke="rgba(255,255,255,0.3)"
+                        strokeWidth={1}
+                      />
+                    ))}
+                  </Pie>
+                </PieChart>
               </div>
-              <div style={styles.expenseSummary}>
-                <div>
-                  {pieData
-                    .slice(0, Math.ceil(pieData.length / 2))
-                    .map((item, index) => (
-                      <p key={index}>
-                        {item.name}: ${item.value.toFixed(2)}
-                      </p>
-                    ))}
+              <div style={{ ...styles.summaryContent, width: "60%" }}>
+                <div style={styles.summaryTitle}>Expense Summary</div>
+                <div style={styles.totalExpense}>
+                  Total: ${totalExpense.toFixed(2)}
                 </div>
-                <div>
-                  {pieData
-                    .slice(Math.ceil(pieData.length / 2))
-                    .map((item, index) => (
-                      <p key={index}>
-                        {item.name}: ${item.value.toFixed(2)}
-                      </p>
-                    ))}
+                <div
+                  style={{
+                    ...styles.expenseSummary,
+                    maxHeight: "calc(100% - 80px)",
+                  }}
+                >
+                  <div>
+                    {pieData
+                      .slice(0, Math.ceil(pieData.length / 2))
+                      .map((item, index) => (
+                        <p key={index} style={{ margin: "4px 0" }}>
+                          {item.name}: ${item.value.toFixed(2)}
+                        </p>
+                      ))}
+                  </div>
+                  <div>
+                    {pieData
+                      .slice(Math.ceil(pieData.length / 2))
+                      .map((item, index) => (
+                        <p key={index} style={{ margin: "4px 0" }}>
+                          {item.name}: ${item.value.toFixed(2)}
+                        </p>
+                      ))}
+                  </div>
                 </div>
               </div>
             </div>

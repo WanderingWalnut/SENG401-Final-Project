@@ -1,8 +1,18 @@
 import React, { useState } from "react";
-import { Grid, Paper, TextField, Button, Typography, Box, Alert, useMediaQuery, useTheme } from "@mui/material";
-import axios from "axios";  // Import axios for API requests
+import {
+  Grid,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Box,
+  Alert,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
+import axios from "axios"; // Import axios for API requests
 import { useNavigate } from "react-router-dom"; // For navigation
-import GreenGradient from "../assets/GreenGradient.svg"
+import GreenGradient from "../assets/GreenGradient.svg";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +23,7 @@ const Login = () => {
   const [error, setError] = useState(""); // Store error messages
   const navigate = useNavigate(); // Hook for navigation
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,17 +34,32 @@ const Login = () => {
     setError(""); // Reset error message
 
     try {
-      const response = await axios.post("http://localhost:5001/api/login", formData);
+      console.log("Attempting login with:", formData); // Log the request data
+      const response = await axios.post(
+        "http://localhost:5001/api/login",
+        formData
+      );
+      console.log("Login response:", response.data); // Log the response
 
       if (response.data.user_id) {
-        localStorage.setItem("user_id", response.data.user_id); // Save user ID in localStorage
-        navigate("/chat"); // Redirect user after successful login
+        localStorage.setItem("user_id", response.data.user_id);
+        navigate("/chat");
       }
-    } catch (err: any) {
-      if (err.response) {
-        setError(err.response.data.error || "Login failed.");
+    } catch (err) {
+      // Better error handling
+      if (axios.isAxiosError(err)) {
+        console.error("Login error details:", err.response?.data); // Log detailed error
+        if (err.response) {
+          setError(err.response.data.error || "Login failed.");
+        } else if (err.request) {
+          setError(
+            "No response from server. Please check if the server is running."
+          );
+        } else {
+          setError("Error setting up the request.");
+        }
       } else {
-        setError("Server error. Please try again later.");
+        setError("An unexpected error occurred.");
       }
     }
   };
@@ -101,9 +126,8 @@ const Login = () => {
           <Typography variant="h4" gutterBottom>
             Login
           </Typography>
-
-          {error && <Alert severity="error">{error}</Alert>} {/* Display error messages */}
-
+          {error && <Alert severity="error">{error}</Alert>}{" "}
+          {/* Display error messages */}
           <form onSubmit={handleSubmit}>
             <TextField
               fullWidth
@@ -135,8 +159,10 @@ const Login = () => {
               sx={{ mt: 2 }}
             >
               Login
-            </Button> 
-            <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+            </Button>
+            <p>
+              Don't have an account? <a href="/signup">Sign Up</a>
+            </p>
           </form>
         </Paper>
       </Grid>

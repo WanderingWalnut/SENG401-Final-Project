@@ -56,6 +56,7 @@ const ChatPage = () => {
   const [totalExpense, setTotalExpense] = useState<number>(0);
   const [lineData, setLineData] = useState<LineChartData[]>([]);
   const [maxSpending, setMaxSpending] = useState<number>(0);
+  const [username, setUsername] = useState<string>("");
 
   // Media queries for responsive design
   const isTablet = useMediaQuery({ maxWidth: 1024 });
@@ -66,6 +67,14 @@ const ChatPage = () => {
     const [year, month] = monthStr.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
     return date.toLocaleString("default", { month: "short" });
+  };
+
+  const getUser = async () => {
+    const userId = localStorage.getItem("user_id") || "1";
+    // For now, we'll just use a simple username based on the user ID
+    // In a real app, you would fetch this from your backend
+    setUsername(`User ${userId}`);
+    return userId;
   };
 
   // Function to fetch category summary data
@@ -127,6 +136,7 @@ const ChatPage = () => {
   // Fetch data when component mounts
   useEffect(() => {
     fetchCategorySummary();
+    getUser(); // Get username when component mounts
   }, []);
 
   // Add effect to prevent body scrolling
@@ -371,7 +381,7 @@ const ChatPage = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      <Navbar username="User" />
+      <Navbar username={username} />
       <div style={styles.chatPageContainer}>
         <div style={styles.mainContent}>
           <div style={styles.rightSection}>

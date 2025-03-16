@@ -1,5 +1,6 @@
-import React, { useState, CSSProperties } from "react";
+import React, { useState, CSSProperties, useEffect } from "react";
 import backgroundImage from "../assets/GreenGradient.svg";
+import Navbar from "../components/ui/navbar";
 
 const UploadPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -7,6 +8,8 @@ const UploadPage = () => {
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [showPopup, setShowPopup] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
+
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -17,6 +20,19 @@ const UploadPage = () => {
       setUploadStatus("Please select a PDF file");
     }
   };
+
+  const getUser = async () => {
+    const userId = localStorage.getItem("user_id") || "1";
+    // For now, we'll just use a simple username based on the user ID
+    // In a real app, you would fetch this from your backend
+    setUsername(`User ${userId}`);
+    return userId;
+  };
+
+  // Fetch user id when component mounts
+  useEffect(() => {
+    getUser();
+  })
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -230,6 +246,7 @@ const UploadPage = () => {
 
   return (
     <div style={styles.container}>
+      <Navbar username={username}/>
       <div style={styles.uploadBox}>
         <h1 style={styles.title}>Upload Your Statement</h1>
         <div

@@ -10,6 +10,7 @@ import {
 import { PieChart, Pie, Cell } from "recharts";
 import "../App.css";
 import backgroundImage from "../assets/GreenGradient.svg";
+import { useMediaQuery } from "react-responsive";
 
 // TypeScript interfaces for our data structures
 interface MonthlySpending {
@@ -53,6 +54,11 @@ const ChatPage = () => {
   const [pieData, setPieData] = useState<PieChartData[]>([]);
   const [totalExpense, setTotalExpense] = useState<number>(0);
   const [lineData, setLineData] = useState<LineChartData[]>([]);
+  const [maxSpending, setMaxSpending] = useState<number>(0);
+
+  // Media queries for responsive design
+  const isTablet = useMediaQuery({ maxWidth: 1024 });
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   // Function to format month for display
   const formatMonth = (monthStr: string) => {
@@ -104,6 +110,12 @@ const ChatPage = () => {
             spending: item.total_amount,
           })
         );
+
+        // Calculate the maximum spending value for chart scaling
+        const maxValue = Math.max(
+          ...transformedLineData.map((item) => item.spending)
+        );
+        setMaxSpending(maxValue);
         setLineData(transformedLineData);
       }
     } catch (error) {
@@ -165,6 +177,10 @@ const ChatPage = () => {
       alignItems: "stretch",
       overflowY: "auto",
       gap: "20px",
+      ...(isMobile && {
+        flexDirection: "column",
+        alignItems: "center",
+      }),
     },
     mainContent: {
       display: "flex",
@@ -172,6 +188,9 @@ const ChatPage = () => {
       width: "100%",
       flexGrow: 1,
       gap: "20px",
+      ...(isTablet && {
+        flexDirection: "column",
+      }),
     },
     leftSection: {
       display: "flex",
@@ -180,6 +199,13 @@ const ChatPage = () => {
       flex: "3",
       minWidth: "200px",
       maxWidth: "600px",
+      ...(isTablet && {
+        width: "100%",
+        flex: "none",
+      }),
+      ...(isMobile && {
+        width: "100%",
+      }),
     },
     topLeftBox: {
       flex: 1,
@@ -201,6 +227,10 @@ const ChatPage = () => {
       borderRadius: "12px",
       padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
+      ...(isMobile && {
+        flexDirection: "column",
+        alignItems: "center",
+      }),
     },
     rightSection: {
       flex: "2",
@@ -212,6 +242,17 @@ const ChatPage = () => {
       borderRadius: "12px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
       padding: "20px",
+      ...(isTablet && {
+        width: "100%",
+        flex: "none",
+        borderLeft: "none",
+        borderTop: "2px solid #444",
+      }),
+      ...(isMobile && {
+        order: -1,
+        minHeight: "400px",
+        width: "100%",
+      }),
     },
     summaryContent: {
       display: "flex",
@@ -234,45 +275,6 @@ const ChatPage = () => {
       fontSize: "1.5rem",
       fontWeight: "bold",
       color: "#00C49F",
-    },
-    "@media (max-width: 1024px)": {
-      mainContent: {
-        flexDirection: "column",
-        gap: "20px",
-      },
-      leftSection: {
-        width: "100%",
-        flex: "none",
-      },
-      rightSection: {
-        width: "100%",
-        flex: "none",
-        borderLeft: "none",
-        borderTop: "2px solid #444",
-      },
-    },
-    "@media (max-width: 768px)": {
-      chatPageContainer: {
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "20px",
-      },
-      mainContent: {
-        flexDirection: "column",
-        gap: "20px",
-      },
-      rightSection: {
-        order: "-1",
-        minHeight: "400px",
-        width: "100%",
-      },
-      leftSection: {
-        width: "100%",
-      },
-      bottomLeftBox: {
-        flexDirection: "column",
-        alignItems: "center",
-      },
     },
     analysisContainer: {
       flex: 1,
@@ -319,10 +321,16 @@ const ChatPage = () => {
       cursor: "pointer",
       fontSize: "18px",
       transition: "all 0.2s ease",
-      "&:hover": {
-        backgroundColor: "#00b48f",
-      },
     },
+  };
+
+  // Add hover style for button
+  const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = "#00b48f";
+  };
+
+  const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.style.backgroundColor = "#00C49F";
   };
 
   return (
@@ -348,6 +356,8 @@ const ChatPage = () => {
               onClick={handleAnalyze}
               style={styles.analyzeButton}
               disabled={isLoading}
+              onMouseEnter={handleButtonHover}
+              onMouseLeave={handleButtonLeave}
             >
               {isLoading ? "Analyzing..." : "Analyze My Spending"}
             </button>
@@ -355,17 +365,45 @@ const ChatPage = () => {
         </div>
         <div style={styles.leftSection}>
           <div style={styles.topLeftBox}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={lineData}>
-                <XAxis dataKey="month" stroke="#ccc" />
-                <YAxis stroke="#ccc" />
-                <Tooltip />
+            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
+              <LineChart
+                data={lineData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 10 }}
+              >
+                <XAxis dataKey="month" stroke="#ccc" tick={{ fill: "#ccc" }} />
+                <YAxis
+                  stroke="#ccc"
+                  tick={{ fill: "#ccc" }}
+                  domain={[0, Math.ceil(maxSpending * 1.2)]}
+                  allowDataOverflow={false}
+                  tickFormatter={(value) => `$${value}`}
+                />
+                <Tooltip
+                  formatter={(value) => [`$${value}`, "Spending"]}
+                  contentStyle={{
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    border: "none",
+                    color: "white",
+                  }}
+                  labelStyle={{ color: "#00C49F" }}
+                />
                 <Line
                   type="monotone"
                   dataKey="spending"
                   stroke="#00C49F"
                   strokeWidth={3}
-                  dot={{ r: 4 }}
+                  dot={{
+                    r: 4,
+                    fill: "#00C49F",
+                    strokeWidth: 2,
+                    stroke: "#fff",
+                  }}
+                  activeDot={{
+                    r: 6,
+                    fill: "#fff",
+                    stroke: "#00C49F",
+                    strokeWidth: 2,
+                  }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -380,14 +418,34 @@ const ChatPage = () => {
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
+                paddingAngle={2}
+                label={false}
+                labelLine={false}
               >
                 {pieData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={COLORS[index % COLORS.length]}
+                    stroke="rgba(255,255,255,0.3)"
+                    strokeWidth={1}
                   />
                 ))}
               </Pie>
+              {/* <Tooltip
+                formatter={(value) => {
+                  // Handle different value types
+                  const numValue =
+                    typeof value === "number"
+                      ? value
+                      : parseFloat(String(value));
+                  return [`$${numValue.toFixed(2)}`, "Amount"];
+                }}
+                contentStyle={{
+                  backgroundColor: "White",
+                  border: "none",
+                  color: "white",
+                }}
+              /> */}
             </PieChart>
             <div style={styles.summaryContent}>
               <div style={styles.summaryTitle}>Expense Summary</div>

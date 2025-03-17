@@ -3,6 +3,7 @@ import { Grid, Paper, TextField, Button, Typography, Box } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For navigation
 import GreenGradient from "../assets/GreenGradient.svg"
+import Monster from "../assets/monster.png";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -90,6 +91,15 @@ const SignUp = () => {
             maxWidth: "400px",
           }}
         >
+            <img src = {Monster}
+            style={{
+              display: "block",  // Ensures the image is centered
+              margin: "0 auto",  // Centers the image horizontally
+              width: "200px",     // Adjust width as needed
+              height: "200px",    // Adjust height as needed
+              objectFit: "contain" // Ensures the image scales properly
+            }}
+          />
           <Typography variant="h4" gutterBottom>
             Sign Up
           </Typography>

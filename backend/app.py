@@ -37,7 +37,7 @@ def create_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="N@veed786",
+        password="password",
         database="BudgetWise"
     )
 

@@ -39,33 +39,19 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(""); // Reset error message
-
+    setError("");
+  
     try {
-      console.log("Attempting login with:", formData); // Log the request data
-      const response = await axios.post(
-        "http://localhost:5001/api/login",
-        formData
-      );
-      console.log("Login response:", response.data); // Log the response
-
-      if (response.data.user_id) {
+      const response = await axios.post("http://127.0.0.1:5001/api/login", formData);
+  
+      if (response.data.user_id && response.data.name) {
         localStorage.setItem("user_id", response.data.user_id);
+        localStorage.setItem("user_name", response.data.name); // ✅ Save the name
         navigate("/chat");
       }
     } catch (err) {
-      // Better error handling
       if (axios.isAxiosError(err)) {
-        console.error("Login error details:", err.response?.data); // Log detailed error
-        if (err.response) {
-          setError(err.response.data.error || "Login failed.");
-        } else if (err.request) {
-          setError(
-            "No response from server. Please check if the server is running."
-          );
-        } else {
-          setError("Error setting up the request.");
-        }
+        setError(err.response?.data.error || "Login failed.");
       } else {
         setError("An unexpected error occurred.");
       }

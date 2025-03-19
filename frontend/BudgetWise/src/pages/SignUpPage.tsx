@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // For navigation
 import GreenGradient from "../assets/GreenGradient.svg"
 import Monster from "../assets/monster.png";
+import { useEffect } from "react";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +15,13 @@ const SignUp = () => {
 
   const [message, setMessage] = useState(""); // Success or error message
   const navigate = useNavigate(); // Hook for navigation
-
+  
+  useEffect(() => {
+    if (localStorage.getItem("user_id")) {
+      navigate("/chat"); // Redirect logged-in users
+    }
+  }, []);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Grid,
   Paper,
@@ -25,6 +25,13 @@ const Login = () => {
   const navigate = useNavigate(); // Hook for navigation
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+
+  // ✅ Redirect logged-in users to chat page
+  useEffect(() => {
+    if (localStorage.getItem("user_id")) {
+      navigate("/chat"); // Redirect logged-in users
+    }
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -124,13 +131,14 @@ const Login = () => {
             maxWidth: "400px",
           }}
         >
-          <img src = {Monster}
+          <img
+            src={Monster}
             style={{
-              display: "block",  // Ensures the image is centered
-              margin: "0 auto",  // Centers the image horizontally
-              width: "200px",     // Adjust width as needed
-              height: "200px",    // Adjust height as needed
-              objectFit: "contain" // Ensures the image scales properly
+              display: "block", // Ensures the image is centered
+              margin: "0 auto", // Centers the image horizontally
+              width: "200px", // Adjust width as needed
+              height: "200px", // Adjust height as needed
+              objectFit: "contain", // Ensures the image scales properly
             }}
           />
           

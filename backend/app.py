@@ -13,7 +13,7 @@ from pdf_processor import PDFProcessor
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:5173")  # Adjust to match your frontend port
+CORS(app, origins="http://localhost:5174")  # Adjust to match your frontend port
 
 # Initialize services
 load_dotenv()
@@ -37,7 +37,7 @@ def create_connection():
     return mysql.connector.connect(
         host="localhost",
         user="root",
-        password="password",
+        password="Ch@rizard4lyfe",
         database="BudgetWise"
     )
 

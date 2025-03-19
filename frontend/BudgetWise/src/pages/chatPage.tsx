@@ -9,7 +9,6 @@ import {
 } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import "../App.css";
-import backgroundImage from "../assets/GreenGradient.svg";
 import { useMediaQuery } from "react-responsive";
 import Navbar from "../components/ui/navbar";
 import { useNavigate } from "react-router-dom";
@@ -58,7 +57,7 @@ const ChatPage = () => {
   const [totalExpense, setTotalExpense] = useState<number>(0);
   const [lineData, setLineData] = useState<LineChartData[]>([]);
   const [maxSpending, setMaxSpending] = useState<number>(0);
-  const [username, setUsername] = useState<string>("");
+  // const [username, setUsername] = useState<string>("");
 
   // Media queries for responsive design
   const isTablet = useMediaQuery({ maxWidth: 1024 });
@@ -71,13 +70,13 @@ const ChatPage = () => {
     return date.toLocaleString("default", { month: "short" });
   };
 
-  const getUser = async () => {
-    const userId = localStorage.getItem("user_id") || "1";
-    // For now, we'll just use a simple username based on the user ID
-    // In a real app, you would fetch this from your backend
-    setUsername(`User ${userId}`);
-    return userId;
-  };
+  // const getUser = async () => {
+  //   const userId = localStorage.getItem("user_id") || "1";
+  //   // For now, we'll just use a simple username based on the user ID
+  //   // In a real app, you would fetch this from your backend
+  //   setUsername(`User ${userId}`);
+  //   return userId;
+  // };
 
   // Function to fetch category summary data
   const fetchCategorySummary = async () => {
@@ -138,7 +137,7 @@ const ChatPage = () => {
   // Fetch data when component mounts
   useEffect(() => {
     fetchCategorySummary();
-    getUser(); // Get username when component mounts
+    // getUser(); // Get username when component mounts
   }, []);
 
   // Add effect to prevent body scrolling
@@ -193,21 +192,16 @@ const ChatPage = () => {
 
   const styles: { [key: string]: CSSProperties } = {
     pageWrapper: {
-      paddingTop: "72px", // Add padding to account for the fixed navbar
       width: "100%",
-      height: "100vh", // Use exact viewport height
-      overflow: "hidden", // Prevent scrolling on the main container
+      height: "100vh", 
+      overflow: "hidden",
       boxSizing: "border-box" as const,
     },
     chatPageContainer: {
       display: "flex",
       flexWrap: "wrap",
-      height: "calc(100vh - 72px)", // Exact height minus navbar
+      height: "calc(100vh - 72px)", 
       width: "100%",
-      backgroundImage: `url(${backgroundImage})`,
-      backgroundSize: "cover",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
       color: "white",
       padding: "20px",
       boxSizing: "border-box",
@@ -253,7 +247,7 @@ const ChatPage = () => {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      border: "1px solid #444",
+      border: "2px solid #444",
       borderRadius: "12px",
       padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
@@ -265,7 +259,7 @@ const ChatPage = () => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      border: "1px solid #444",
+      border: "2px solid #444",
       borderRadius: "12px",
       padding: "20px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
@@ -280,7 +274,7 @@ const ChatPage = () => {
       display: "flex",
       flexDirection: "column",
       gap: "20px",
-      height: "100%", // Fill available height
+      height: "100%", 
       borderLeft: "2px solid #444",
       borderRadius: "12px",
       backgroundColor: "rgba(0, 0, 0, 0.2)",
@@ -291,11 +285,11 @@ const ChatPage = () => {
         flex: "none",
         borderLeft: "none",
         borderTop: "2px solid #444",
-        height: "50%", // Take half the height on tablet
+        height: "50%", 
       }),
       ...(isMobile && {
         order: -1,
-        height: "50%", // Take half the height on mobile
+        height: "50%",
         width: "100%",
       }),
     },
@@ -304,7 +298,7 @@ const ChatPage = () => {
       flexDirection: "column",
       gap: "10px",
       flex: "1",
-      overflow: "auto", // Allow scrolling if needed
+      overflow: "auto", 
     },
     summaryTitle: {
       fontSize: "1.2rem",
@@ -316,7 +310,7 @@ const ChatPage = () => {
       justifyContent: "space-between",
       width: "100%",
       fontSize: "0.9rem",
-      overflow: "auto", // Allow scrolling if needed
+      overflow: "auto", 
     },
     totalExpense: {
       fontSize: "1.5rem",
@@ -330,7 +324,7 @@ const ChatPage = () => {
       width: "100%",
       position: "relative",
       borderRadius: "12px",
-      overflow: "hidden", // Hide overflow but allow inner scrolling
+      overflow: "hidden", 
     },
     analysisText: {
       position: "absolute",
@@ -384,7 +378,7 @@ const ChatPage = () => {
 
   return (
     <div style={styles.pageWrapper}>
-      <Navbar username={username} />
+      <Navbar/>
       <div style={styles.chatPageContainer}>
         <div style={styles.mainContent}>
           <div style={styles.rightSection}>

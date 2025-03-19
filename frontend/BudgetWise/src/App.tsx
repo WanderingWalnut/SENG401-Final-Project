@@ -4,8 +4,9 @@ import ChatPage from "./pages/chatPage";
 import LoginPage from "./pages/LoginPage";
 import LandingPage from "./pages/landingPage";
 import UploadPage from "./pages/UploadPage";
+import HistoryPage from "./pages/HistoryPage";
 import PrivateRoute from "./components/ui/PrivateRoute"; 
-import PublicRoute from "./components/ui/PublicRoute"; // Import PublicRoute
+import PublicRoute from "./components/ui/PublicRoute"; 
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/upload" element={<UploadPage />} />
+          <Route path="/history" element={<HistoryPage />} />
         </Route>
       </Routes>
     </Router>

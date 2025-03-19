@@ -246,7 +246,7 @@ const UploadPage = () => {
 
   return (
     <div style={styles.container}>
-      <Navbar username={username}/>
+      <Navbar />
       <div style={styles.uploadBox}>
         <h1 style={styles.title}>Upload Your Statement</h1>
         <div

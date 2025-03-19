@@ -12,6 +12,8 @@ import "../App.css";
 import backgroundImage from "../assets/GreenGradient.svg";
 import { useMediaQuery } from "react-responsive";
 import Navbar from "../components/ui/navbar";
+import { useNavigate } from "react-router-dom";
+
 
 // TypeScript interfaces for our data structures
 interface MonthlySpending {
@@ -378,6 +380,7 @@ const ChatPage = () => {
   const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.style.backgroundColor = "#00C49F";
   };
+  const navigate = useNavigate();
 
   return (
     <div style={styles.pageWrapper}>
@@ -411,6 +414,23 @@ const ChatPage = () => {
               >
                 {isLoading ? "Analyzing..." : "Analyze My Spending"}
               </button>
+              <button 
+              onClick={() => navigate("/upload")}
+
+              style={{
+                padding: "16px 32px",
+                marginLeft: "20px", 
+                borderRadius: "8px",
+                border: "none",
+                backgroundColor: "#00C49F",
+                color: "white",
+                cursor: "pointer",
+                fontSize: "18px",
+                transition: "all 0.2s ease"
+              }
+              }>
+                Upload PDF
+                </button>
             </div>
           </div>
           <div style={styles.leftSection}>

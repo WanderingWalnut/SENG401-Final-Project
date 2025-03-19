@@ -1,7 +1,6 @@
-import React, { Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import profileIcon from "../../assets/profile.svg";
 
 const Navbar = () => {
   const [position, setPosition] = useState({
@@ -10,26 +9,7 @@ const Navbar = () => {
     opacity: 0,
   });
   const [activeTab, setActiveTab] = useState<string | null>(null);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedName = localStorage.getItem("user_name");
-    if (storedName) {
-      setUserName(storedName);
-    }
-  }, []);
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
-  const handleSignOut = () => {
-    localStorage.clear();
-    navigate("/login");
-    window.location.reload();
-  };
 
   return (
     <nav style={styles.navbarContainer}>
@@ -45,17 +25,6 @@ const Navbar = () => {
         <Tab setPosition={setPosition} onClick={() => navigate("/history")} setActiveTab={setActiveTab} activeTab={activeTab}>History</Tab>
         <Cursor position={position} />
       </ul>
-      <div style={styles.profileContainer} onClick={toggleDropdown}>
-        {userName ? <span style={styles.userName}>{userName}</span> : <span>Loading...</span>}
-        <img src={profileIcon} alt="Profile" style={styles.profileIcon} />
-        {dropdownOpen && (
-          <div style={styles.dropdownMenu}>
-            <div style={styles.logoutOption} onClick={handleSignOut}>
-              Sign Out
-            </div>
-          </div>
-        )}
-      </div>
     </nav>
   );
 };
@@ -111,11 +80,7 @@ const Cursor = ({ position }: { position: { left: number; width: number; opacity
 const styles = {
   navbarContainer: {
     display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px 20px",
-    backgroundColor: "white",
-    borderBottom: "4px solid black",
+    justifyContent: "center",
   },
   navbar: {
     position: "relative",
@@ -151,39 +116,6 @@ const styles = {
     backgroundColor: "black",
     borderRadius: "20px",
     zIndex: 1,
-  },
-  profileContainer: {
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-    cursor: "pointer",
-  },
-  userName: {
-    fontSize: "16px",
-    fontWeight: "500",
-    color: "#333",
-    marginRight: "10px",
-  },
-  profileIcon: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-  },
-  dropdownMenu: {
-    position: "absolute",
-    top: "50px",
-    right: "0",
-    backgroundColor: "white",
-    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
-    borderRadius: "8px",
-    width: "150px",
-    padding: "10px 0",
-  },
-  logoutOption: {
-    padding: "12px",
-    color: "#d9534f",
-    fontWeight: "bold",
-    cursor: "pointer",
   },
 };
 

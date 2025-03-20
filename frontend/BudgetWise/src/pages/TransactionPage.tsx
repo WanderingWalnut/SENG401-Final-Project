@@ -1,6 +1,6 @@
 import React, { CSSProperties, useState, useEffect } from "react";
 import Navbar from "../components/ui/navbar";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";
 
 interface Transaction {
@@ -24,7 +24,6 @@ const TransactionsPage = () => {
   const [availableMonths, setAvailableMonths] = useState<string[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const isMobile = useMediaQuery({ maxWidth: 768 });
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -140,9 +139,9 @@ const TransactionsPage = () => {
       justifyContent: "space-between",
       alignItems: "center",
       borderBottom: "1px solid #334155",
-      ":last-child": {
-        borderBottom: "none",
-      },
+      // ":last-child": {
+      //   borderBottom: "none",
+      // },
     },
     category: {
       display: "flex",

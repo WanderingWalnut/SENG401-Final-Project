@@ -1,6 +1,6 @@
+import { color } from "framer-motion";
 import React, { useState } from "react";
 import { FiArrowRight, FiCheckCircle, FiPieChart, FiTrendingUp } from "react-icons/fi";
-import { backdropClasses } from "@mui/material";
 
 const LandingPage = () => {
     const [isHovered, setIsHovered] = useState(false);
@@ -11,29 +11,29 @@ const LandingPage = () => {
             {/* Navigation Bar */}
             <nav style={styles.nav}>
                 <div style={styles.logo}>BudgetWise</div>
-                <button 
-                    style={{...styles.loginButton, backgroundColor: isLoginHovered ? '#059669' : '#10B981'}}
+                <a
+                    href="/login"
+                    style={{ ...styles.loginButton, backgroundColor: isLoginHovered ? '#059669' : '#10B981' }}
                     onMouseEnter={() => setIsLoginHovered(true)}
                     onMouseLeave={() => setIsLoginHovered(false)}
                 >
-                    <a href="/login" style={styles.buttonLink}>Log In</a>
-                </button>
+                    Log In
+                </a>
             </nav>
 
             {/* Hero Section */}
             <div style={styles.hero}>
                 <h1 style={styles.title}>Smart Money Management for Everyone</h1>
                 <p style={styles.subtitle}>Take control of your finances with powerful budgeting tools and real-time insights</p>
-                <button 
-                    style={{...styles.ctaButton, transform: isHovered ? 'translateY(-2px)' : 'none'}}
+                <a
+                    href="/signup"
+                    style={{ ...styles.ctaButton, transform: isHovered ? 'translateY(-2px)' : 'none' }}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                 >
-                    <a href="/signup" style={styles.ctaLink}>
-                        Sign Up Now
-                        <FiArrowRight style={styles.ctaIcon} />
-                    </a>
-                </button>
+                    Sign Up Now
+                    <FiArrowRight style={styles.ctaIcon} />
+                </a>
             </div>
 
             {/* Features Grid */}
@@ -88,6 +88,7 @@ const styles = {
         cursor: "pointer",
         transition: "all 0.3s ease",
         boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        color: "white"
     },
     buttonLink: {
         textDecoration: "none",
@@ -123,6 +124,7 @@ const styles = {
         cursor: "pointer",
         transition: "all 0.3s ease",
         boxShadow: "0 8px 15px rgba(16, 185, 129, 0.3)",
+        color: "white",
     },
     ctaLink: {
         textDecoration: "none",
@@ -134,7 +136,8 @@ const styles = {
         gap: "0.8rem",
     },
     ctaIcon: {
-        fontSize: "1.2rem",
+        fontSize: "1.5rem",
+        verticalAlign: "middle",
     },
     features: {
         display: "grid",

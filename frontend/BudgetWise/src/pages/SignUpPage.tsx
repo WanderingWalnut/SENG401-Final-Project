@@ -148,8 +148,8 @@ const SignUp = () => {
               src={LogoText}
               alt="Logo Text"
               style={{
-                width: "1500px", // Adjust width to fit well
-                height: "auto", // Maintains aspect ratio
+                width: "800px",
+                height: "auto",
               }}
             />
           </Box>

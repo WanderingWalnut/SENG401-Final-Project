@@ -187,7 +187,7 @@ const styles = {
     flexGrow: 1,
   },
   navbar: {
-    position: "relative",
+    position: "relative" as 'relative',
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -199,7 +199,7 @@ const styles = {
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
   },
   tab: {
-    position: "relative",
+    position: "relative" as 'relative',
     cursor: "pointer",
     padding: "10px 20px",
     fontSize: "16px",
@@ -216,7 +216,7 @@ const styles = {
     zIndex: 11,
   },
   cursor: {
-    position: "absolute",
+    position: "absolute" as 'absolute',
     height: "80%",
     backgroundColor: "#00C49F",
     borderRadius: "20px",
@@ -227,7 +227,7 @@ const styles = {
     alignItems: "center",
     cursor: "pointer",
     marginLeft: "auto",
-    position: "relative",
+    position: "relative" as 'relative',
   },
   userName: {
     fontSize: "16px",
@@ -243,7 +243,7 @@ const styles = {
     padding: "8px",
   },
   dropdownMenu: {
-    position: "absolute",
+    position: "absolute" as 'absolute',
     top: "50px",
     right: "0",
     backgroundColor: "#1E293B",

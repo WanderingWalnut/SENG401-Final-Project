@@ -8,6 +8,7 @@ import React, {
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import profileIcon from "../../assets/profile.svg";
+import Logo from "../../assets/logo.min.svg";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -43,7 +44,13 @@ const Navbar = () => {
 
   return (
     <nav style={styles.navbarContainer}>
+          <img
+            src={Logo}
+            alt="Logo"
+            style={{ width: "100px", height: "100px", marginRight: "10px", transform: "rotate(-30deg)" }}  
+          />
       <div style={styles.navbarWrapper}>
+        
         <ul
           style={styles.navbar}
           onMouseLeave={() => {

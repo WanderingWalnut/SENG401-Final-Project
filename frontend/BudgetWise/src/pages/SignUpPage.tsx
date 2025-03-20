@@ -18,6 +18,8 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Monster from "../assets/monster.png";
+import Logo from "../assets/logo.svg";
+import LogoText from "../assets/logoText.png";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({
@@ -78,6 +80,37 @@ const SignUp = () => {
         color: "#E2E8F0",
       }}
     >
+      {/* Clickable Logo */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          cursor: "pointer",
+          zIndex: 1000,
+          opacity: 1,
+          transition: "opacity 0.2s ease-in-out, transform 0.2s ease-in-out",
+          transform: "rotate(-30deg)",
+          width: 150,
+          height: "auto",
+          "&:hover": {
+            transform: "rotate(-30deg) scale(1.1)",
+          },
+        }}
+        onClick={() => navigate("/")}
+      >
+        <img
+          src={Logo}
+          alt="Logo"
+          style={{
+            width: "90%",
+            height: "auto",
+            display: "block",
+            pointerEvents: "auto",
+          }}
+        />
+      </Box>
+
       {/* Left Side - Graphic Section (Desktop only) */}
       {!isSmallScreen && (
         <Grid
@@ -111,19 +144,14 @@ const SignUp = () => {
               p: 8,
             }}
           >
-            <Typography
-              variant="h2"
-              sx={{
-                fontWeight: 700,
-                background: "linear-gradient(45deg, #00C49F 30%, #00b48f 90%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                textAlign: "center",
-                lineHeight: 1.2,
+            <img
+              src={LogoText}
+              alt="Logo Text"
+              style={{
+                width: "1500px", // Adjust width to fit well
+                height: "auto", // Maintains aspect ratio
               }}
-            >
-              Start Your Financial Journey
-            </Typography>
+            />
           </Box>
         </Grid>
       )}

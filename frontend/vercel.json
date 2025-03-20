@@ -6,9 +6,11 @@
       }
     ],
     "rewrites": [
-      {
-        "source": "/api/:path*",
-        "destination": "/api/index.js"
-      }
+      { "source": "/", "destination": "/landingPage" },
+      { "source": "/login", "destination": "/LoginPage" },
+      { "source": "/signup", "destination": "/SignUpPage" },
+      { "source": "/chat", "destination": "/chatPage" },
+      { "source": "/transactions", "destination": "/TransactionPage" },
+      { "source": "/upload", "destination": "/UploadPage" }
     ]
   }

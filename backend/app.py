@@ -117,8 +117,9 @@ def login():
         else:
             return jsonify({"error": "Invalid email or password"}), 401
 
-    except Error as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        logging.error(f"Error occurred: {str(e)}")
+        return jsonify({"error": "Internal Server Error"}), 500
 
 @app.route("/api/analyze-spending/<int:user_id>", methods=["GET"])
 def analyze_spending(user_id):

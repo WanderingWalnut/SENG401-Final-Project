@@ -11,9 +11,10 @@ from datetime import datetime
 from collections import defaultdict
 from pdf_processor import PDFProcessor
 from dotenv import load_dotenv
+import logging
 
 app = Flask(__name__)
-CORS(app, origins=os.environ.get("REACT_APP_BACKEND_URL")) # Adjust to match your frontend port
+CORS(app, origins="http://localhost:5173")  # Adjust to match your frontend port
 
 # Initialize services
 load_dotenv()
@@ -290,8 +291,9 @@ def check_transactions(user_id):
             'monthly_spending': monthly_spending
         })
 
-    except Error as e:
-        return jsonify({"error": f"Database error: {str(e)}"}), 500
+    except Exception as e:
+        logging.error(f"Error occurred: {str(e)}")
+        return jsonify({"error": "Internal Server Error"}), 500
     
 @app.route("/api/transactions/<int:user_id>", methods=["GET"])
 def get_transactions(user_id):

@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import logging
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173", "https://seng-401-final-project-ten.vercel.app/"])  # Adjust to match your frontend port
+CORS(app, origins=["http://localhost:5173", "https://seng-401-final-project-ten.vercel.app", "https://seng-401-final-project-ten.vercel.app"])  # Adjust to match your frontend port
 
 # Initialize services
 load_dotenv()

@@ -19,7 +19,6 @@ import { motion } from "framer-motion";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import Monster from "../assets/monster.png";
 import Logo from "../assets/logo.svg";
-import LogoText from "../assets/logoText.png";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({

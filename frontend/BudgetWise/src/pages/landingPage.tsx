@@ -1,4 +1,3 @@
-import { color } from "framer-motion";
 import React, { useState } from "react";
 import { FiArrowRight, FiCheckCircle, FiPieChart, FiTrendingUp } from "react-icons/fi";
 
@@ -65,7 +64,7 @@ const styles = {
         backgroundSize: "cover",
         backgroundPosition: "center",
         padding: "0 10%",
-        position: "relative",
+        position: "absolute" as "absolute", // Explicitly type it
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
         overflow: "auto", // Allow scrolling in the container 
     },
@@ -97,7 +96,7 @@ const styles = {
         fontWeight: "500",
     },
     hero: {
-        textAlign: "center",
+        textAlign: "center" as "center",
         padding: "8rem 0 4rem 0",
         maxWidth: "800px",
         margin: "0 auto",
@@ -149,7 +148,7 @@ const styles = {
         background: "rgba(255, 255, 255, 0.95)",
         borderRadius: "15px",
         padding: "2rem",
-        textAlign: "center",
+        textAlign: "center" as "center",
         transition: "transform 0.3s ease",
         boxShadow: "0 10px 20px rgba(0, 0, 0, 0.1)",
     },

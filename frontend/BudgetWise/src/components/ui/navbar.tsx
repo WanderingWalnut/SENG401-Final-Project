@@ -187,7 +187,7 @@ const styles = {
     flexGrow: 1,
   },
   navbar: {
-    position: "relative" as "relative",
+    position: "relative",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -227,7 +227,7 @@ const styles = {
     alignItems: "center",
     cursor: "pointer",
     marginLeft: "auto",
-    position: "relative" as "relative",
+    position: "relative",
   },
   userName: {
     fontSize: "16px",

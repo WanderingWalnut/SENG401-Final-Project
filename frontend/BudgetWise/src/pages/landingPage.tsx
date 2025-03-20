@@ -1,4 +1,3 @@
-import { color } from "framer-motion";
 import { useState } from "react";
 import { FiArrowRight, FiCheckCircle, FiPieChart, FiTrendingUp } from "react-icons/fi";
 

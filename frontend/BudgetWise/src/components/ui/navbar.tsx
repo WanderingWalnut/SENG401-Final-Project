@@ -1,85 +1,262 @@
-import React, { useState, useEffect } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
+import { motion } from "framer-motion";
+import { useNavigate, useLocation } from "react-router-dom";
 import profileIcon from "../../assets/profile.svg";
-import { useNavigate } from "react-router-dom";
-import axios from "axios"; // Import Axios for API calls
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation(); // Get the current route
+  const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
 
-  const navigate = useNavigate();
-
-  // Fetch username from API if not stored in localStorage
   useEffect(() => {
     const storedName = localStorage.getItem("user_name");
-
     if (storedName) {
       setUserName(storedName);
-    } else {
-      fetchUserName();
     }
   }, []);
 
-  // Function to fetch username from API
-  const fetchUserName = async () => {
-    const userId = localStorage.getItem("user_id");
-
-    if (!userId) return;
-
-    try {
-      const response = await axios.get(`http://127.0.0.1:5001/api/get-user/${userId}`);
-      if (response.data.name) {
-        setUserName(response.data.name);
-        localStorage.setItem("user_name", response.data.name); // Cache username
-      }
-    } catch (error) {
-      console.error("Error fetching user name:", error);
-    }
-  };
+  // Detect active tab based on the current route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes("/chat")) setActiveTab("Home");
+    else if (path.includes("/upload")) setActiveTab("Upload");
+    else if (path.includes("/history")) setActiveTab("History");
+  }, [location]);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
   const handleSignOut = () => {
-    localStorage.clear(); // Clear all stored data
+    localStorage.clear();
     navigate("/login");
     window.location.reload();
   };
 
   return (
-    <div style={{
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      height: "72px", width: "100%", backgroundColor: "#ffffff",
-      boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)", 
-      position: "fixed", top: 0, left: 0, zIndex: 1000
-    }}>
-      <div 
-        style={{ fontWeight: "bold", fontSize: "24px", color: "#00C49F", cursor: "pointer", marginLeft: "20px", }} 
-        onClick={() => navigate("/")}
-      >
-        BudgetWise
+    <nav style={styles.navbarContainer}>
+      <div style={styles.navbarWrapper}>
+        <ul
+          style={styles.navbar}
+          onMouseLeave={() => {
+            setPosition((prev) => ({ ...prev, opacity: 1 })); // Keep cursor on selected tab
+          }}
+        >
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/chat")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            Home
+          </Tab>
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/upload")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            Upload
+          </Tab>
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/history")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            History
+          </Tab>
+          <Cursor position={position} />
+        </ul>
       </div>
-      <div 
-        style={{ position: "relative", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer", marginRight: "20px" }} 
-        onClick={toggleDropdown}
-      >
-        {userName ? <span style={{ fontSize: "16px", color: "#333", fontWeight: "500" }}>{userName}</span> : <span>Loading...</span>}
-        <img src={profileIcon} alt="Profile" style={{ width: "40px", height: "40px", borderRadius: "50%" }} />
+      <div style={styles.profileContainer} onClick={toggleDropdown}>
+        {userName ? (
+          <span style={styles.userName}>{userName}</span>
+        ) : (
+          <span>Loading...</span>
+        )}
+        <img src={profileIcon} alt="Profile" style={styles.profileIcon} />
         {dropdownOpen && (
-          <div style={{
-            position: "absolute", top: "50px", right: "0",
-            backgroundColor: "white", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
-            borderRadius: "8px", width: "150px", padding: "10px 0"
-          }}>
-            <div style={{ padding: "12px", color: "#d9534f", fontWeight: "bold", cursor: "pointer" }} onClick={handleSignOut}>
+          <div style={styles.dropdownMenu}>
+            <div style={styles.logoutOption} onClick={handleSignOut}>
               Sign Out
             </div>
           </div>
         )}
       </div>
-    </div>
+    </nav>
   );
+};
+
+const Tab = ({
+  children,
+  setPosition,
+  onClick,
+  setActiveTab,
+  activeTab,
+}: {
+  children: string;
+  setPosition: Dispatch<
+    SetStateAction<{ left: number; width: number; opacity: number }>
+  >;
+  onClick: () => void;
+  setActiveTab: Dispatch<SetStateAction<string | null>>;
+  activeTab: string | null;
+}) => {
+  const ref = useRef<HTMLLIElement | null>(null);
+
+  useEffect(() => {
+    if (activeTab === children && ref.current) {
+      const { width } = ref.current.getBoundingClientRect();
+      setPosition({
+        left: ref.current.offsetLeft,
+        width,
+        opacity: 1,
+      });
+    }
+  }, [activeTab, setPosition]);
+
+  return (
+    <li
+      ref={ref}
+      style={{
+        ...styles.tab,
+        color: activeTab === children ? "white" : "#94A3B8",
+      }}
+      onClick={() => {
+        onClick();
+        setActiveTab(children);
+      }}
+      onMouseEnter={() => {
+        if (!ref.current) return;
+        const { width } = ref.current.getBoundingClientRect();
+        setPosition({
+          left: ref.current.offsetLeft,
+          width,
+          opacity: 1,
+        });
+      }}
+    >
+      <span style={styles.tabText}>{children}</span>
+    </li>
+  );
+};
+
+const Cursor = ({
+  position,
+}: {
+  position: { left: number; width: number; opacity: number };
+}) => {
+  return (
+    <motion.li
+      initial={{ opacity: 0 }}
+      animate={position}
+      style={styles.cursor}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    />
+  );
+};
+
+const styles = {
+  navbarContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "10px 20px",
+    backgroundColor: "#0F172A",
+    borderBottom: "1px solid #334155",
+  },
+  navbarWrapper: {
+    display: "flex",
+    justifyContent: "center",
+    flexGrow: 1,
+  },
+  navbar: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: "2px solid #334155",
+    backgroundColor: "#1E293B",
+    borderRadius: "30px",
+    padding: "5px",
+    listStyle: "none",
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+  },
+  tab: {
+    position: "relative",
+    cursor: "pointer",
+    padding: "10px 20px",
+    fontSize: "16px",
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    zIndex: 10,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "color 0.3s ease",
+  },
+  tabText: {
+    position: "relative",
+    zIndex: 11,
+  },
+  cursor: {
+    position: "absolute",
+    height: "80%",
+    backgroundColor: "#00C49F",
+    borderRadius: "20px",
+    zIndex: 1,
+  },
+  profileContainer: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer",
+    marginLeft: "auto",
+    position: "relative",
+  },
+  userName: {
+    fontSize: "16px",
+    fontWeight: "500",
+    color: "#E2E8F0",
+    marginRight: "10px",
+  },
+  profileIcon: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    backgroundColor: "#334155",
+    padding: "8px",
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: "50px",
+    right: "0",
+    backgroundColor: "#1E293B",
+    border: "1px solid #334155",
+    boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
+    borderRadius: "8px",
+    width: "150px",
+    padding: "10px 0",
+    zIndex: 100,
+  },
+  logoutOption: {
+    padding: "12px",
+    color: "#FF4444",
+    fontWeight: "bold",
+    cursor: "pointer",
+    ":hover": {
+      backgroundColor: "rgba(255, 68, 68, 0.1)",
+    },
+  },
 };
 
 export default Navbar;

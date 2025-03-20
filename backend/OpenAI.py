@@ -18,7 +18,7 @@ class OpenAIService:
             connection = mysql.connector.connect(
                 host="localhost",
                 user="root",
-                password="N@veed786",
+                password="Ch@rizard4lyfe",
                 database="BudgetWise"
             )
             cursor = connection.cursor(dictionary=True)

@@ -6,6 +6,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  CartesianGrid,
 } from "recharts";
 import { PieChart, Pie, Cell } from "recharts";
 import "../App.css";
@@ -13,8 +14,6 @@ import { useMediaQuery } from "react-responsive";
 import Navbar from "../components/ui/navbar";
 import { useNavigate } from "react-router-dom";
 
-
-// TypeScript interfaces for our data structures
 interface MonthlySpending {
   month: string;
   total_amount: number;
@@ -57,28 +56,17 @@ const ChatPage = () => {
   const [totalExpense, setTotalExpense] = useState<number>(0);
   const [lineData, setLineData] = useState<LineChartData[]>([]);
   const [maxSpending, setMaxSpending] = useState<number>(0);
-  // const [username, setUsername] = useState<string>("");
 
-  // Media queries for responsive design
   const isTablet = useMediaQuery({ maxWidth: 1024 });
   const isMobile = useMediaQuery({ maxWidth: 768 });
+  const navigate = useNavigate();
 
-  // Function to format month for display
   const formatMonth = (monthStr: string) => {
     const [year, month] = monthStr.split("-");
     const date = new Date(parseInt(year), parseInt(month) - 1);
     return date.toLocaleString("default", { month: "short" });
   };
 
-  // const getUser = async () => {
-  //   const userId = localStorage.getItem("user_id") || "1";
-  //   // For now, we'll just use a simple username based on the user ID
-  //   // In a real app, you would fetch this from your backend
-  //   setUsername(`User ${userId}`);
-  //   return userId;
-  // };
-
-  // Function to fetch category summary data
   const fetchCategorySummary = async () => {
     try {
       const userId = localStorage.getItem("user_id") || "1";
@@ -95,34 +83,27 @@ const ChatPage = () => {
       const data = await response.json();
 
       if (data.category_summary) {
-        // Transform the category summary into pie chart data
         const transformedData: PieChartData[] = data.category_summary.map(
           (item: CategorySummary) => ({
             name: item.expense_category,
             value: Math.abs(item.total_amount),
           })
         );
-
-        // Calculate total expense
         const total = transformedData.reduce(
           (sum, item) => sum + item.value,
           0
         );
-
         setPieData(transformedData);
         setTotalExpense(total);
       }
 
       if (data.monthly_spending) {
-        // Transform monthly spending data for the line chart
         const transformedLineData: LineChartData[] = data.monthly_spending.map(
           (item: MonthlySpending) => ({
             month: formatMonth(item.month),
             spending: item.total_amount,
           })
         );
-
-        // Calculate the maximum spending value for chart scaling
         const maxValue = Math.max(
           ...transformedLineData.map((item) => item.spending)
         );
@@ -134,23 +115,16 @@ const ChatPage = () => {
     }
   };
 
-  // Fetch data when component mounts
   useEffect(() => {
     fetchCategorySummary();
-    // getUser(); // Get username when component mounts
   }, []);
 
-  // Add effect to prevent body scrolling
   useEffect(() => {
-    // Save the original styles
     const originalOverflow = document.body.style.overflow;
     const originalHeight = document.body.style.height;
-
-    // Set styles to prevent scrolling
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
 
-    // Cleanup function to restore original styles when component unmounts
     return () => {
       document.body.style.overflow = originalOverflow;
       document.body.style.height = originalHeight;
@@ -172,19 +146,11 @@ const ChatPage = () => {
       );
 
       const data = await response.json();
-
-      if (data.analysis) {
-        setAnalysis(data.analysis);
-      }
-
-      if (data.formatted_analysis) {
-        setFormattedAnalysis(data.formatted_analysis);
-      }
+      if (data.analysis) setAnalysis(data.analysis);
+      if (data.formatted_analysis) setFormattedAnalysis(data.formatted_analysis);
     } catch (error) {
       console.error("Error:", error);
-      setAnalysis(
-        "Sorry, I encountered an error while analyzing your spending."
-      );
+      setAnalysis("Sorry, I encountered an error while analyzing your spending.");
       setFormattedAnalysis(null);
     }
     setIsLoading(false);
@@ -193,36 +159,32 @@ const ChatPage = () => {
   const styles: { [key: string]: CSSProperties } = {
     pageWrapper: {
       width: "100%",
-      height: "100vh", 
+      height: "100vh",
       overflow: "hidden",
-      boxSizing: "border-box" as const,
+      boxSizing: "border-box",
+      backgroundColor: "#0F172A",
     },
     chatPageContainer: {
       display: "flex",
       flexWrap: "wrap",
-      height: "calc(100vh - 72px)", 
+      height: "calc(100vh - 72px)",
       width: "100%",
-      color: "white",
+      color: "#E2E8F0",
       padding: "20px",
       boxSizing: "border-box",
       alignItems: "stretch",
-      overflow: "hidden", // Prevent scrolling
+      overflow: "hidden",
       gap: "20px",
-      ...(isMobile && {
-        flexDirection: "column",
-        alignItems: "center",
-      }),
+      ...(isMobile && { flexDirection: "column" }),
     },
     mainContent: {
       display: "flex",
       flexWrap: "wrap",
       width: "100%",
-      height: "100%", // Fill available height
+      height: "100%",
       gap: "20px",
-      overflow: "hidden", // Prevent scrolling
-      ...(isTablet && {
-        flexDirection: "column",
-      }),
+      overflow: "hidden",
+      ...(isTablet && { flexDirection: "column" }),
     },
     leftSection: {
       display: "flex",
@@ -231,27 +193,25 @@ const ChatPage = () => {
       flex: "3",
       minWidth: "200px",
       maxWidth: "600px",
-      height: "100%", // Fill available height
+      height: "100%",
       ...(isTablet && {
         width: "100%",
         flex: "none",
-        height: "50%", // Take half the height on tablet
+        height: "50%",
       }),
-      ...(isMobile && {
-        width: "100%",
-        height: "50%", // Take half the height on mobile
-      }),
+      ...(isMobile && { width: "100%", height: "50%" }),
     },
     topLeftBox: {
       flex: 1,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      border: "2px solid #444",
-      borderRadius: "12px",
+      border: "1px solid #334155",
+      borderRadius: "16px",
       padding: "20px",
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
-      minHeight: "45%", // Ensure minimum height
+      backgroundColor: "#1E293B",
+      minHeight: "45%",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
     },
     bottomLeftBox: {
       flex: 1,
@@ -259,38 +219,30 @@ const ChatPage = () => {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "space-between",
-      border: "2px solid #444",
-      borderRadius: "12px",
+      border: "1px solid #334155",
+      borderRadius: "16px",
       padding: "20px",
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
-      minHeight: "40%", // Ensure minimum height
-      ...(isMobile && {
-        flexDirection: "column",
-        alignItems: "center",
-      }),
+      backgroundColor: "#1E293B",
+      minHeight: "40%",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
+      ...(isMobile && { flexDirection: "column" }),
     },
     rightSection: {
       flex: "2",
       display: "flex",
       flexDirection: "column",
       gap: "20px",
-      height: "100%", 
-      borderLeft: "2px solid #444",
-      borderRadius: "12px",
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
+      height: "100%",
+      borderLeft: "1px solid #334155",
+      borderRadius: "16px",
+      backgroundColor: "#1E293B",
       padding: "20px",
-      boxSizing: "border-box" as const,
+      boxSizing: "border-box",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
       ...(isTablet && {
         width: "100%",
-        flex: "none",
         borderLeft: "none",
-        borderTop: "2px solid #444",
-        height: "50%", 
-      }),
-      ...(isMobile && {
-        order: -1,
-        height: "50%",
-        width: "100%",
+        borderTop: "1px solid #334155",
       }),
     },
     summaryContent: {
@@ -298,24 +250,26 @@ const ChatPage = () => {
       flexDirection: "column",
       gap: "10px",
       flex: "1",
-      overflow: "auto", 
+      overflow: "auto",
     },
     summaryTitle: {
       fontSize: "1.2rem",
-      fontWeight: "bold",
+      fontWeight: 600,
       marginBottom: "10px",
+      color: "#7C3AED",
     },
     expenseSummary: {
       display: "flex",
       justifyContent: "space-between",
       width: "100%",
       fontSize: "0.9rem",
-      overflow: "auto", 
+      overflow: "auto",
     },
     totalExpense: {
       fontSize: "1.5rem",
       fontWeight: "bold",
       color: "#00C49F",
+      marginBottom: "15px",
     },
     analysisContainer: {
       flex: 1,
@@ -324,7 +278,7 @@ const ChatPage = () => {
       width: "100%",
       position: "relative",
       borderRadius: "12px",
-      overflow: "hidden", 
+      overflow: "hidden",
     },
     analysisText: {
       position: "absolute",
@@ -333,10 +287,10 @@ const ChatPage = () => {
       right: 0,
       bottom: 0,
       backgroundColor: "rgba(255, 255, 255, 0.1)",
-      margin: "0", // Remove margin to maximize space
+      margin: "0",
       padding: "20px",
       borderRadius: "12px",
-      overflowY: "auto", // Allow vertical scrolling
+      overflowY: "auto",
       color: "white",
     },
     placeholderText: {
@@ -351,7 +305,7 @@ const ChatPage = () => {
       justifyContent: "center",
       alignItems: "center",
       padding: "10px 0",
-      marginTop: "auto", // Push to bottom
+      marginTop: "auto",
       marginBottom: "10px",
     },
     analyzeButton: {
@@ -361,12 +315,13 @@ const ChatPage = () => {
       backgroundColor: "#00C49F",
       color: "white",
       cursor: "pointer",
-      fontSize: "18px",
+      fontSize: "16px",
       transition: "all 0.2s ease",
+      fontWeight: 600,
+      boxShadow: "0 2px 4px rgba(0, 196, 159, 0.2)",
     },
   };
 
-  // Add hover style for button
   const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.style.backgroundColor = "#00b48f";
   };
@@ -374,20 +329,17 @@ const ChatPage = () => {
   const handleButtonLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.style.backgroundColor = "#00C49F";
   };
-  const navigate = useNavigate();
 
   return (
     <div style={styles.pageWrapper}>
-      <Navbar/>
+      <Navbar />
       <div style={styles.chatPageContainer}>
         <div style={styles.mainContent}>
           <div style={styles.rightSection}>
             <div style={styles.analysisContainer}>
               <div style={styles.analysisText}>
                 {formattedAnalysis ? (
-                  <div
-                    dangerouslySetInnerHTML={{ __html: formattedAnalysis }}
-                  />
+                  <div dangerouslySetInnerHTML={{ __html: formattedAnalysis }} />
                 ) : analysis ? (
                   <pre style={{ whiteSpace: "pre-wrap" }}>{analysis}</pre>
                 ) : (
@@ -408,23 +360,26 @@ const ChatPage = () => {
               >
                 {isLoading ? "Analyzing..." : "Analyze My Spending"}
               </button>
-              <button 
-              onClick={() => navigate("/upload")}
-
-              style={{
-                padding: "16px 32px",
-                marginLeft: "20px", 
-                borderRadius: "8px",
-                border: "none",
-                backgroundColor: "#00C49F",
-                color: "white",
-                cursor: "pointer",
-                fontSize: "18px",
-                transition: "all 0.2s ease"
-              }
-              }>
+              <button
+                onClick={() => navigate("/upload")}
+                style={{
+                  padding: "16px 32px",
+                  marginLeft: "20px",
+                  borderRadius: "8px",
+                  border: "none",
+                  backgroundColor: "#7C3AED",
+                  color: "white",
+                  cursor: "pointer",
+                  fontSize: "16px",
+                  transition: "all 0.2s ease",
+                  fontWeight: 600,
+                  boxShadow: "0 2px 4px rgba(124, 58, 237, 0.2)",
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#6D28D9"}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#7C3AED"}
+              >
                 Upload PDF
-                </button>
+              </button>
             </div>
           </div>
           <div style={styles.leftSection}>
@@ -432,26 +387,27 @@ const ChatPage = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
                   data={lineData}
-                  margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+                  margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
                 >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                   <XAxis
                     dataKey="month"
-                    stroke="#ccc"
-                    tick={{ fill: "#ccc" }}
+                    stroke="#94A3B8"
+                    tick={{ fill: "#94A3B8" }}
                   />
                   <YAxis
-                    stroke="#ccc"
-                    tick={{ fill: "#ccc" }}
+                    stroke="#94A3B8"
+                    tick={{ fill: "#94A3B8" }}
                     domain={[0, Math.ceil(maxSpending * 1.2)]}
-                    allowDataOverflow={false}
                     tickFormatter={(value) => `$${value}`}
                   />
                   <Tooltip
                     formatter={(value) => [`$${value}`, "Spending"]}
                     contentStyle={{
-                      backgroundColor: "rgba(0, 0, 0, 0.8)",
-                      border: "none",
-                      color: "white",
+                      backgroundColor: "#1E293B",
+                      border: "1px solid #334155",
+                      borderRadius: "8px",
+                      color: "#E2E8F0",
                     }}
                     labelStyle={{ color: "#00C49F" }}
                   />
@@ -461,13 +417,13 @@ const ChatPage = () => {
                     stroke="#00C49F"
                     strokeWidth={3}
                     dot={{
-                      r: 4,
+                      r: 5,
                       fill: "#00C49F",
                       strokeWidth: 2,
-                      stroke: "#fff",
+                      stroke: "#1E293B",
                     }}
                     activeDot={{
-                      r: 6,
+                      r: 7,
                       fill: "#fff",
                       stroke: "#00C49F",
                       strokeWidth: 2,
@@ -477,15 +433,7 @@ const ChatPage = () => {
               </ResponsiveContainer>
             </div>
             <div style={styles.bottomLeftBox}>
-              <div
-                style={{
-                  width: "40%",
-                  height: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+              <div style={{ width: "40%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <PieChart width={150} height={150}>
                   <Pie
                     data={pieData}
@@ -497,7 +445,6 @@ const ChatPage = () => {
                     dataKey="value"
                     paddingAngle={2}
                     label={false}
-                    labelLine={false}
                   >
                     {pieData.map((entry, index) => (
                       <Cell
@@ -515,17 +462,12 @@ const ChatPage = () => {
                 <div style={styles.totalExpense}>
                   Total: ${totalExpense.toFixed(2)}
                 </div>
-                <div
-                  style={{
-                    ...styles.expenseSummary,
-                    maxHeight: "calc(100% - 80px)",
-                  }}
-                >
+                <div style={{ ...styles.expenseSummary, maxHeight: "calc(100% - 80px)" }}>
                   <div>
                     {pieData
                       .slice(0, Math.ceil(pieData.length / 2))
                       .map((item, index) => (
-                        <p key={index} style={{ margin: "4px 0" }}>
+                        <p key={index} style={{ margin: "4px 0", color: "#E2E8F0" }}>
                           {item.name}: ${item.value.toFixed(2)}
                         </p>
                       ))}
@@ -534,7 +476,7 @@ const ChatPage = () => {
                     {pieData
                       .slice(Math.ceil(pieData.length / 2))
                       .map((item, index) => (
-                        <p key={index} style={{ margin: "4px 0" }}>
+                        <p key={index} style={{ margin: "4px 0", color: "#E2E8F0" }}>
                           {item.name}: ${item.value.toFixed(2)}
                         </p>
                       ))}

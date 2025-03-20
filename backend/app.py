@@ -21,12 +21,12 @@ ai_service = OpenAIService()
 pdf_processor = PDFProcessor()
 
 # Add this configuration after your existing configurations
-# UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf'}
 
 # Create uploads directory if it doesn't exist
-# if not os.path.exists(UPLOAD_FOLDER):
-#     os.makedirs(UPLOAD_FOLDER)
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 # Add this helper function
 def allowed_file(filename):
@@ -102,7 +102,7 @@ def login():
             return jsonify({
                 "message": "Login successful",
                 "user_id": user["id"],
-                "name": user["name"]  # ✅ Return the name
+                "name": user["name"]
             })
         else:
             return jsonify({"error": "Invalid email or password"}), 401
@@ -142,28 +142,33 @@ def upload_and_analyze_pdf():
     try:
         if 'file' not in request.files:
             return jsonify({'error': 'No file part'}), 400
-
+        
         file = request.files['file']
         user_id = request.form.get('user_id')
-
+        
         if not user_id:
             return jsonify({'error': 'User ID is required'}), 400
-
+        
         if file.filename == '':
             return jsonify({'error': 'No selected file'}), 400
-
+        
         if file and allowed_file(file.filename):
-            # Process file directly from memory (without saving)
-            transactions = pdf_processor.process_pdf(file.stream)
-
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(UPLOAD_FOLDER, filename)
+            file.save(file_path)
+            
+            # Process PDF using LangChain
+            transactions = pdf_processor.process_pdf(file_path)
+            
             if not transactions:
                 return jsonify({'error': 'Could not extract data from PDF'}), 400
-
-            # Save extracted transactions to database
+                
+            # Save transactions to database
             db = create_connection()
             cursor = db.cursor()
+            
             transactions_added = 0
-
+            
             for transaction in transactions:
                 try:
                     cursor.execute(
@@ -177,18 +182,26 @@ def upload_and_analyze_pdf():
                         )
                     )
                     transactions_added += 1
-                except Exception as e:
+                except Error as e:
                     print(f"Error inserting transaction: {str(e)}")
-
+                    
             db.commit()
             cursor.close()
             db.close()
-
-            return jsonify({'message': 'PDF processed successfully', 'transactions_count': transactions_added}), 200
-
+            
+            # Clean up the uploaded file
+            try:
+                os.remove(file_path)
+            except:
+                pass
+            
+            return jsonify({
+                'message': 'PDF processed successfully',
+                'transactions_count': transactions_added
+            }), 200
         else:
             return jsonify({'error': 'Invalid file type'}), 400
-
+            
     except Exception as e:
         print(f"Process error: {str(e)}")
         return jsonify({'error': f'Error processing PDF: {str(e)}'}), 500

@@ -9,7 +9,7 @@ const UploadPage = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [username, setUsername] = useState<string>("");
-
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -134,13 +134,17 @@ const UploadPage = () => {
   };
 
   const styles: { [key: string]: CSSProperties } = {
-    container: {
-      minHeight: "100vh",
+    pageWrapper: {
       width: "100%",
-      backgroundImage: `url(${backgroundImage})`,
-      backgroundSize: "cover",
-      backgroundRepeat: "no-repeat",
-      backgroundPosition: "center",
+      height: "100vh",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+    },
+    container: {
+      flex: 1,
+      width: "100%",
+      backgroundColor: "#0F172A",
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
@@ -150,19 +154,20 @@ const UploadPage = () => {
     uploadBox: {
       width: "100%",
       maxWidth: "600px",
-      backgroundColor: "rgba(0, 0, 0, 0.2)",
-      borderRadius: "12px",
+      backgroundColor: "#1E293B", 
+      borderRadius: "16px",
       padding: "40px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       gap: "20px",
-      border: "1px solid #444",
+      border: "1px solid #334155", // Dark border
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
     },
     dropZone: {
       width: "100%",
       height: "200px",
-      border: `2px dashed ${isDragging ? "#00C49F" : "#666"}`,
+      border: `2px dashed ${isDragging ? "#00C49F" : "#475569"}`,
       borderRadius: "12px",
       display: "flex",
       flexDirection: "column",
@@ -170,44 +175,48 @@ const UploadPage = () => {
       alignItems: "center",
       padding: "20px",
       cursor: "pointer",
-      backgroundColor: isDragging
-        ? "rgba(0, 196, 159, 0.1)"
-        : "rgba(255, 255, 255, 0.1)",
+      backgroundColor: isDragging ? "rgba(0, 196, 159, 0.1)" : "rgba(255, 255, 255, 0.05)",
       transition: "all 0.3s ease",
     },
     title: {
-      color: "white",
+      color: "#E2E8F0", 
       fontSize: "24px",
       marginBottom: "20px",
       textAlign: "center",
+      fontWeight: "600",
     },
     uploadText: {
-      color: "white",
+      color: "#94A3B8",
       marginBottom: "10px",
       textAlign: "center",
+      fontSize: "16px",
     },
     fileInput: {
       display: "none",
     },
     button: {
-      padding: "12px 24px",
-      backgroundColor: "#00C49F",
+      padding: "16px 32px",
+      backgroundColor: isHovered ? "#00b48f" : "#00C49F",
       color: "white",
       border: "none",
       borderRadius: "8px",
       cursor: "pointer",
       fontSize: "16px",
-      transition: "background-color 0.2s",
+      fontWeight: "600",
+      transition: "all 0.2s ease",
+      boxShadow: "0 2px 4px rgba(0, 196, 159, 0.2)",
     },
     selectedFile: {
-      color: "white",
+      color: "#E2E8F0",
       marginTop: "10px",
       textAlign: "center",
+      fontSize: "14px",
     },
     status: {
-      color: uploadStatus.includes("success") ? "#00C49F" : "#ff4444",
+      color: uploadStatus.includes("Success") ? "#00C49F" : "#FF4444", // Success/Error colors
       marginTop: "10px",
       textAlign: "center",
+      fontWeight: "500",
     },
     popup: {
       position: "fixed",
@@ -215,38 +224,27 @@ const UploadPage = () => {
       right: "20px",
       padding: "15px 25px",
       borderRadius: "8px",
-      backgroundColor: "rgba(0, 0, 0, 0.8)",
-      color: "white",
+      backgroundColor: "#1E293B",
+      border: "1px solid #334155",
+      color: "#E2E8F0",
       zIndex: 1000,
-      animation: "slideIn 0.3s ease-out",
       display: "flex",
       alignItems: "center",
       gap: "10px",
-      transform: "translateX(0)",
-      opacity: 1,
-      transition: "transform 0.3s ease-out, opacity 0.3s ease-out",
+      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
     },
     successPopup: {
-      backgroundColor: "rgba(0, 196, 159, 0.9)",
+      borderColor: "#00C49F",
     },
     errorPopup: {
-      backgroundColor: "rgba(255, 68, 68, 0.9)",
-    },
-    "@keyframes slideIn": {
-      from: {
-        transform: "translateX(100%)",
-        opacity: 0,
-      },
-      to: {
-        transform: "translateX(0)",
-        opacity: 1,
-      },
+      borderColor: "#FF4444",
     },
   };
 
   return (
-    <div style={styles.container}>
+    <div style={styles.pageWrapper}>
       <Navbar />
+    <div style={styles.container}>
       <div style={styles.uploadBox}>
         <h1 style={styles.title}>Upload Your Statement</h1>
         <div
@@ -271,7 +269,12 @@ const UploadPage = () => {
           )}
         </div>
         {uploadStatus && <p style={styles.status}>{uploadStatus}</p>}
-        <button style={styles.button} onClick={handleButtonClick}>
+        <button 
+          style={styles.button}
+          onClick={handleButtonClick}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           {selectedFile ? "Upload & Process PDF" : "Select PDF"}
         </button>
       </div>
@@ -285,10 +288,11 @@ const UploadPage = () => {
               : styles.errorPopup),
           }}
         >
-          {uploadStatus.includes("Success") ? <span>✓</span> : <span>⚠️</span>}
+          {uploadStatus.includes("Success") ? "✓" : "⚠️"}
           {uploadStatus}
         </div>
       )}
+    </div>
     </div>
   );
 };

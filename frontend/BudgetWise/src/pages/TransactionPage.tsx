@@ -1,4 +1,4 @@
-import React, { CSSProperties, useState, useEffect } from "react";
+import { CSSProperties, useState, useEffect } from "react";
 import Navbar from "../components/ui/navbar";
 // import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "react-responsive";

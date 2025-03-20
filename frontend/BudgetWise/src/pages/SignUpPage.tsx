@@ -144,14 +144,23 @@ const SignUp = () => {
               p: 8,
             }}
           >
-            <img
-              src={LogoText}
-              alt="Logo Text"
-              style={{
-                width: "800px",
-                height: "auto",
-              }}
-            />
+              <h1 style={{
+              fontSize: "3rem",                // Larger font size for emphasis
+              fontWeight: "700",               // Bold text for stronger impact
+              lineHeight: "1.3",               // Adjust line height for better readability
+              textAlign: "center",             // Center the text horizontally
+              color: "white",                // Use a modern, dark color for better contrast
+              margin: "20px 0",                // Add margin for spacing around the heading
+              letterSpacing: "2px",            // Add some letter spacing for a more open look
+              textTransform: "uppercase",      // Make the text uppercase for a more dynamic feel
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.1)", // Soft shadow for a subtle 3D effect
+              width: "100%",                   // Full width to adapt to container size
+              maxWidth: "600px",               // Set a max width to avoid text stretching too much on larger screens
+              marginLeft: "auto",              // Center it horizontally
+              marginRight: "auto",             // Center it horizontally
+            }}>
+              Save More, Live Better
+            </h1>
           </Box>
         </Grid>
       )}

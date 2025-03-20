@@ -67,7 +67,7 @@ const UploadPage = () => {
     try {
       // Upload and process in one step
       const response = await fetch(
-        "http://localhost:5001/api/upload-and-analyze-pdf",
+        `${import.meta.env.VITE_BACKEND_URL}/api/upload-and-analyze-pdf`,
         {
           method: "POST",
           body: formData,
@@ -84,7 +84,7 @@ const UploadPage = () => {
 
         // Automatically trigger analysis after successful upload
         const analysisResponse = await fetch(
-          `http://localhost:5001/api/analyze-spending/${userId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/analyze-spending/${userId}`,
           {
             method: "GET",
           }

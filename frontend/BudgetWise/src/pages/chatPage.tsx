@@ -73,7 +73,7 @@ const ChatPage = () => {
     try {
       const userId = localStorage.getItem("user_id") || "1";
       const response = await fetch(
-        `http://localhost:5001/api/check-transactions/${userId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/check-transactions/${userId}`,
         {
           method: "GET",
           headers: {
@@ -138,7 +138,7 @@ const ChatPage = () => {
     try {
       const userId = localStorage.getItem("user_id") || "1";
       const response = await fetch(
-        `http://localhost:5001/api/analyze-spending/${userId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/analyze-spending/${userId}`,
         {
           method: "GET",
           headers: {

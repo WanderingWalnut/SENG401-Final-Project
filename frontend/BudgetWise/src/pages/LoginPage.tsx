@@ -49,8 +49,9 @@ const Login = () => {
     setLoading(true);
 
     try {
+      console.log("Form Data:", formData);
       const response = await axios.post(
-        "http://127.0.0.1:5001/api/login",
+        `${import.meta.env.VITE_BACKEND_URL}/api/login`,
         formData
       );
 
@@ -61,8 +62,10 @@ const Login = () => {
       }
     } catch (err) {
       if (axios.isAxiosError(err)) {
+        console.error("Axios error:", err.response);
         setError(err.response?.data.error || "Login failed.");
       } else {
+        console.error("Unexpected error:", err);
         setError("An unexpected error occurred.");
       }
     } finally {

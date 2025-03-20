@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 import mysql.connector
+from mysql.connector import Error
 # Load environment variables
 load_dotenv()
 
@@ -15,12 +16,7 @@ class OpenAIService:
         """
         try:
             # Connect to the database
-            connection = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="password",
-                database="BudgetWise"
-            )
+            connection = self.create_connection()
             cursor = connection.cursor(dictionary=True)
 
             # Fetch transactions for the user
@@ -652,5 +648,22 @@ Use markdown formatting to highlight key information. Make your response clear, 
         except Exception as e:
             print(f"Error formatting analysis: {str(e)}")
             return f"<div class='error'>Error formatting analysis: {str(e)}</div>"
+
+    def create_connection(self):
+        """Create a database connection using the credentials from the environment variables."""
+        connection = None
+        try:
+            connection = mysql.connector.connect(
+                host=os.getenv("MYSQLHOST"),  # Update with your deployed DB host
+                user=os.getenv("MYSQLUSER"),  # Update with your deployed DB user
+                password=os.getenv("MYSQLPASSWORD"),  # Update with your deployed DB password
+                database=os.getenv("MYSQLDATABASE"),  # Update with your deployed DB name
+                port=os.getenv("MYSQLPORT")  # Optional: Update with your deployed DB port
+            )
+            if connection.is_connected():
+                print("Connection to MySQL DB successful")
+        except Error as e:
+            print(f"The error '{e}' occurred")
+        return connection
 
 

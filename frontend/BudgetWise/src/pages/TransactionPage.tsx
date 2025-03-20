@@ -31,7 +31,7 @@ const TransactionsPage = () => {
       try {
         const userId = localStorage.getItem("user_id");
         const response = await fetch(
-          `http://localhost:5001/api/transactions/${userId}`
+          `${import.meta.env.VITE_BACKEND_URL}/api/transactions/${userId}`
         );
 
         if (!response.ok) throw new Error("Failed to fetch transactions");

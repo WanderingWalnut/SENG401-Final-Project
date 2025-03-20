@@ -54,7 +54,7 @@ const SignUp = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5001/api/signup",
+        `${import.meta.env.VITE_BACKEND_URL}/api/signup`,
         formData
       );
 
@@ -62,6 +62,7 @@ const SignUp = () => {
       setTimeout(() => navigate("/login"), 1500);
       setFormData({ name: "", email: "", password: "", showPassword: false });
     } catch (error: any) {
+      console.error("Signup error:", error); // Log error
       setMessage({
         text: error.response?.data?.error || "Signup failed",
         type: "error",

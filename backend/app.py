@@ -13,7 +13,7 @@ from pdf_processor import PDFProcessor
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-CORS(app, origins="http://localhost:5173")  # Adjust to match your frontend port
+CORS(app, origins=os.environ.get("REACT_APP_BACKEND_URL")) # Adjust to match your frontend port
 
 # Initialize services
 load_dotenv()

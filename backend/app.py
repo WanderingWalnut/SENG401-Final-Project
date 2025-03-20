@@ -283,6 +283,33 @@ def check_transactions(user_id):
 
     except Error as e:
         return jsonify({"error": f"Database error: {str(e)}"}), 500
+    
+@app.route("/api/transactions/<int:user_id>", methods=["GET"])
+def get_transactions(user_id):
+    try:
+        db = create_connection()
+        cursor = db.cursor(dictionary=True)
+        
+        cursor.execute("""
+            SELECT 
+                id,
+                transaction_date,
+                description,
+                amount,
+                expense_category
+            FROM budget_data 
+            WHERE user_id = %s 
+            ORDER BY transaction_date DESC
+        """, (user_id,))
+        transactions = cursor.fetchall()
+        
+        cursor.close()
+        db.close()
+        
+        return jsonify({"transactions": transactions})
+
+    except Error as e:
+        return jsonify({"error": f"Database error: {str(e)}"}), 500
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001, host='0.0.0.0')

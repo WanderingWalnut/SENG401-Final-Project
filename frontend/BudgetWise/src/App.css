@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 #root {
   width: 100vw;
   height: 100vh;
@@ -41,5 +43,12 @@
 .read-the-docs {
   color: #888;
 }
+option {
+  background: #1E293B;
+  color: #E2E8F0;
+  padding: 8px 12px;
+}
 
-
+option:hover {
+  background: #334155;
+}

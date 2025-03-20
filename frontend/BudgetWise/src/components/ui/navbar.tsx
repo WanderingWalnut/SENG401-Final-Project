@@ -11,7 +11,7 @@ import profileIcon from "../../assets/profile.svg";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Get the current route
+  const location = useLocation();
   const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -24,12 +24,11 @@ const Navbar = () => {
     }
   }, []);
 
-  // Detect active tab based on the current route
   useEffect(() => {
     const path = location.pathname;
     if (path.includes("/chat")) setActiveTab("Home");
     else if (path.includes("/upload")) setActiveTab("Upload");
-    else if (path.includes("/history")) setActiveTab("History");
+    else if (path.includes("/transactions")) setActiveTab("Transactions");
   }, [location]);
 
   const toggleDropdown = () => {
@@ -38,7 +37,7 @@ const Navbar = () => {
 
   const handleSignOut = () => {
     localStorage.clear();
-    navigate("/login");
+    navigate("/");
     window.location.reload();
   };
 
@@ -48,7 +47,7 @@ const Navbar = () => {
         <ul
           style={styles.navbar}
           onMouseLeave={() => {
-            setPosition((prev) => ({ ...prev, opacity: 1 })); // Keep cursor on selected tab
+            setPosition((prev) => ({ ...prev, opacity: 1 }));
           }}
         >
           <Tab
@@ -69,11 +68,11 @@ const Navbar = () => {
           </Tab>
           <Tab
             setPosition={setPosition}
-            onClick={() => navigate("/history")}
+            onClick={() => navigate("/transactions")}
             setActiveTab={setActiveTab}
             activeTab={activeTab}
           >
-            History
+            Transactions
           </Tab>
           <Cursor position={position} />
         </ul>

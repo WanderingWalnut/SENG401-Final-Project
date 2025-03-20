@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import GreenGradient from "../assets/GreenGradient.svg";
 import { FiArrowRight, FiCheckCircle, FiPieChart, FiTrendingUp } from "react-icons/fi";
+import { backdropClasses } from "@mui/material";
 
 const LandingPage = () => {
     const [isHovered, setIsHovered] = useState(false);
@@ -61,7 +61,7 @@ const LandingPage = () => {
 const styles = {
     main: {
         minHeight: "100vh",
-        backgroundImage: `url(${GreenGradient})`,
+        background: "linear-gradient(90deg, #0F172A 0%, #1E293B 100%)",
         backgroundSize: "cover",
         backgroundPosition: "center",
         padding: "0 10%",

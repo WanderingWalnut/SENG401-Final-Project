@@ -1,18 +1,21 @@
-import React, { Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
+import React, {
+  Dispatch,
+  SetStateAction,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import profileIcon from "../../assets/profile.svg";
 
 const Navbar = () => {
-  const [position, setPosition] = useState({
-    left: 0,
-    width: 0,
-    opacity: 0,
-  });
+  const navigate = useNavigate();
+  const location = useLocation(); // Get the current route
+  const [position, setPosition] = useState({ left: 0, width: 0, opacity: 0 });
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const storedName = localStorage.getItem("user_name");
@@ -20,6 +23,14 @@ const Navbar = () => {
       setUserName(storedName);
     }
   }, []);
+
+  // Detect active tab based on the current route
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.includes("/chat")) setActiveTab("Home");
+    else if (path.includes("/upload")) setActiveTab("Upload");
+    else if (path.includes("/history")) setActiveTab("History");
+  }, [location]);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -37,18 +48,42 @@ const Navbar = () => {
         <ul
           style={styles.navbar}
           onMouseLeave={() => {
-            setPosition((prev) => ({ ...prev, opacity: 0 }));
-            setActiveTab(null);
+            setPosition((prev) => ({ ...prev, opacity: 1 })); // Keep cursor on selected tab
           }}
         >
-          <Tab setPosition={setPosition} onClick={() => navigate("/chat")} setActiveTab={setActiveTab} activeTab={activeTab}>Home</Tab>
-          <Tab setPosition={setPosition} onClick={() => navigate("/upload")} setActiveTab={setActiveTab} activeTab={activeTab}>Upload</Tab>
-          <Tab setPosition={setPosition} onClick={() => navigate("/history")} setActiveTab={setActiveTab} activeTab={activeTab}>History</Tab>
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/chat")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            Home
+          </Tab>
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/upload")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            Upload
+          </Tab>
+          <Tab
+            setPosition={setPosition}
+            onClick={() => navigate("/history")}
+            setActiveTab={setActiveTab}
+            activeTab={activeTab}
+          >
+            History
+          </Tab>
           <Cursor position={position} />
         </ul>
       </div>
       <div style={styles.profileContainer} onClick={toggleDropdown}>
-        {userName ? <span style={styles.userName}>{userName}</span> : <span>Loading...</span>}
+        {userName ? (
+          <span style={styles.userName}>{userName}</span>
+        ) : (
+          <span>Loading...</span>
+        )}
         <img src={profileIcon} alt="Profile" style={styles.profileIcon} />
         {dropdownOpen && (
           <div style={styles.dropdownMenu}>
@@ -67,15 +102,28 @@ const Tab = ({
   setPosition,
   onClick,
   setActiveTab,
-  activeTab
+  activeTab,
 }: {
   children: string;
-  setPosition: Dispatch<SetStateAction<{ left: number; width: number; opacity: number }>>;
+  setPosition: Dispatch<
+    SetStateAction<{ left: number; width: number; opacity: number }>
+  >;
   onClick: () => void;
   setActiveTab: Dispatch<SetStateAction<string | null>>;
   activeTab: string | null;
 }) => {
   const ref = useRef<HTMLLIElement | null>(null);
+
+  useEffect(() => {
+    if (activeTab === children && ref.current) {
+      const { width } = ref.current.getBoundingClientRect();
+      setPosition({
+        left: ref.current.offsetLeft,
+        width,
+        opacity: 1,
+      });
+    }
+  }, [activeTab, setPosition]);
 
   return (
     <li
@@ -84,7 +132,10 @@ const Tab = ({
         ...styles.tab,
         color: activeTab === children ? "white" : "#94A3B8",
       }}
-      onClick={onClick}
+      onClick={() => {
+        onClick();
+        setActiveTab(children);
+      }}
       onMouseEnter={() => {
         if (!ref.current) return;
         const { width } = ref.current.getBoundingClientRect();
@@ -93,7 +144,6 @@ const Tab = ({
           width,
           opacity: 1,
         });
-        setActiveTab(children);
       }}
     >
       <span style={styles.tabText}>{children}</span>
@@ -101,7 +151,11 @@ const Tab = ({
   );
 };
 
-const Cursor = ({ position }: { position: { left: number; width: number; opacity: number } }) => {
+const Cursor = ({
+  position,
+}: {
+  position: { left: number; width: number; opacity: number };
+}) => {
   return (
     <motion.li
       initial={{ opacity: 0 }}

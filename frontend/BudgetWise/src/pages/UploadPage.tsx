@@ -1,5 +1,4 @@
-import React, { useState, CSSProperties, useEffect } from "react";
-import backgroundImage from "../assets/GreenGradient.svg";
+import React, { useState, CSSProperties } from "react";
 import Navbar from "../components/ui/navbar";
 
 const UploadPage = () => {
@@ -7,8 +6,6 @@ const UploadPage = () => {
   const [uploadStatus, setUploadStatus] = useState<string>("");
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [showPopup, setShowPopup] = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [username, setUsername] = useState<string>("");
   const [isHovered, setIsHovered] = useState(false);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,19 +17,6 @@ const UploadPage = () => {
       setUploadStatus("Please select a PDF file");
     }
   };
-
-  const getUser = async () => {
-    const userId = localStorage.getItem("user_id") || "1";
-    // For now, we'll just use a simple username based on the user ID
-    // In a real app, you would fetch this from your backend
-    setUsername(`User ${userId}`);
-    return userId;
-  };
-
-  // Fetch user id when component mounts
-  useEffect(() => {
-    getUser();
-  })
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -154,14 +138,14 @@ const UploadPage = () => {
     uploadBox: {
       width: "100%",
       maxWidth: "600px",
-      backgroundColor: "#1E293B", 
+      backgroundColor: "#1E293B",
       borderRadius: "16px",
       padding: "40px",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       gap: "20px",
-      border: "1px solid #334155", // Dark border
+      border: "1px solid #334155",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
     },
     dropZone: {
@@ -175,11 +159,13 @@ const UploadPage = () => {
       alignItems: "center",
       padding: "20px",
       cursor: "pointer",
-      backgroundColor: isDragging ? "rgba(0, 196, 159, 0.1)" : "rgba(255, 255, 255, 0.05)",
+      backgroundColor: isDragging
+        ? "rgba(0, 196, 159, 0.1)"
+        : "rgba(255, 255, 255, 0.05)",
       transition: "all 0.3s ease",
     },
     title: {
-      color: "#E2E8F0", 
+      color: "#E2E8F0",
       fontSize: "24px",
       marginBottom: "20px",
       textAlign: "center",
@@ -213,7 +199,7 @@ const UploadPage = () => {
       fontSize: "14px",
     },
     status: {
-      color: uploadStatus.includes("Success") ? "#00C49F" : "#FF4444", // Success/Error colors
+      color: uploadStatus.includes("Success") ? "#00C49F" : "#FF4444",
       marginTop: "10px",
       textAlign: "center",
       fontWeight: "500",
@@ -244,55 +230,55 @@ const UploadPage = () => {
   return (
     <div style={styles.pageWrapper}>
       <Navbar />
-    <div style={styles.container}>
-      <div style={styles.uploadBox}>
-        <h1 style={styles.title}>Upload Your Statement</h1>
-        <div
-          style={styles.dropZone}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={() => document.getElementById("fileInput")?.click()}
-        >
-          <p style={styles.uploadText}>
-            Drag & Drop your PDF here or click to browse
-          </p>
-          <input
-            id="fileInput"
-            type="file"
-            accept=".pdf"
-            onChange={handleFileSelect}
-            style={styles.fileInput}
-          />
-          {selectedFile && (
-            <p style={styles.selectedFile}>Selected: {selectedFile.name}</p>
-          )}
+      <div style={styles.container}>
+        <div style={styles.uploadBox}>
+          <h1 style={styles.title}>Upload Your Statement</h1>
+          <div
+            style={styles.dropZone}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => document.getElementById("fileInput")?.click()}
+          >
+            <p style={styles.uploadText}>
+              Drag & Drop your PDF here or click to browse
+            </p>
+            <input
+              id="fileInput"
+              type="file"
+              accept=".pdf"
+              onChange={handleFileSelect}
+              style={styles.fileInput}
+            />
+            {selectedFile && (
+              <p style={styles.selectedFile}>Selected: {selectedFile.name}</p>
+            )}
+          </div>
+          {uploadStatus && <p style={styles.status}>{uploadStatus}</p>}
+          <button
+            style={styles.button}
+            onClick={handleButtonClick}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            {selectedFile ? "Upload & Process PDF" : "Select PDF"}
+          </button>
         </div>
-        {uploadStatus && <p style={styles.status}>{uploadStatus}</p>}
-        <button 
-          style={styles.button}
-          onClick={handleButtonClick}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {selectedFile ? "Upload & Process PDF" : "Select PDF"}
-        </button>
-      </div>
 
-      {showPopup && uploadStatus && (
-        <div
-          style={{
-            ...styles.popup,
-            ...(uploadStatus.includes("Success")
-              ? styles.successPopup
-              : styles.errorPopup),
-          }}
-        >
-          {uploadStatus.includes("Success") ? "✓" : "⚠️"}
-          {uploadStatus}
-        </div>
-      )}
-    </div>
+        {showPopup && uploadStatus && (
+          <div
+            style={{
+              ...styles.popup,
+              ...(uploadStatus.includes("Success")
+                ? styles.successPopup
+                : styles.errorPopup),
+            }}
+          >
+            {uploadStatus.includes("Success") ? "✓" : "⚠️"}
+            {uploadStatus}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

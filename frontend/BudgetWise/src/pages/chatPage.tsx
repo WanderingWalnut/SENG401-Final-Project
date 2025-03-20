@@ -56,6 +56,8 @@ const ChatPage = () => {
   const [totalExpense, setTotalExpense] = useState<number>(0);
   const [lineData, setLineData] = useState<LineChartData[]>([]);
   const [maxSpending, setMaxSpending] = useState<number>(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const isTablet = useMediaQuery({ maxWidth: 1024 });
   const isMobile = useMediaQuery({ maxWidth: 768 });
@@ -147,10 +149,13 @@ const ChatPage = () => {
 
       const data = await response.json();
       if (data.analysis) setAnalysis(data.analysis);
-      if (data.formatted_analysis) setFormattedAnalysis(data.formatted_analysis);
+      if (data.formatted_analysis)
+        setFormattedAnalysis(data.formatted_analysis);
     } catch (error) {
       console.error("Error:", error);
-      setAnalysis("Sorry, I encountered an error while analyzing your spending.");
+      setAnalysis(
+        "Sorry, I encountered an error while analyzing your spending."
+      );
       setFormattedAnalysis(null);
     }
     setIsLoading(false);
@@ -160,14 +165,13 @@ const ChatPage = () => {
     pageWrapper: {
       width: "100%",
       height: "100vh",
-      overflow: "hidden",
       boxSizing: "border-box",
       backgroundColor: "#0F172A",
     },
     chatPageContainer: {
       display: "flex",
       flexWrap: "wrap",
-      height: "calc(100vh - 72px)",
+      height: "calc(100vh - 120px)",
       width: "100%",
       color: "#E2E8F0",
       padding: "20px",
@@ -183,23 +187,24 @@ const ChatPage = () => {
       width: "100%",
       height: "100%",
       gap: "20px",
-      overflow: "hidden",
-      ...(isTablet && { flexDirection: "column" }),
+      overflowY: "auto",
+      ...(isTablet && { flexDirection: "column", maxWidth: "100%" }),
     },
     leftSection: {
       display: "flex",
       flexDirection: "column",
       gap: "20px",
       flex: "3",
-      minWidth: "200px",
+      minWidth: "40%",
       maxWidth: "600px",
       height: "100%",
       ...(isTablet && {
         width: "100%",
         flex: "none",
         height: "50%",
+        maxWidth: "100%",
       }),
-      ...(isMobile && { width: "100%", height: "50%" }),
+      ...(isMobile && { width: "100%", height: "50%", maxWidth: "100%" }),
     },
     topLeftBox: {
       flex: 1,
@@ -210,7 +215,6 @@ const ChatPage = () => {
       borderRadius: "16px",
       padding: "20px",
       backgroundColor: "#1E293B",
-      minHeight: "45%",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
     },
     bottomLeftBox: {
@@ -223,9 +227,8 @@ const ChatPage = () => {
       borderRadius: "16px",
       padding: "20px",
       backgroundColor: "#1E293B",
-      minHeight: "40%",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
-      ...(isMobile && { flexDirection: "column" }),
+      ...(isMobile && { maxWidth: "100%" }),
     },
     rightSection: {
       flex: "2",
@@ -243,33 +246,79 @@ const ChatPage = () => {
         width: "100%",
         borderLeft: "none",
         borderTop: "1px solid #334155",
+        maxWidth: "100%",
       }),
     },
     summaryContent: {
       display: "flex",
       flexDirection: "column",
-      gap: "10px",
+      gap: "8px",
       flex: "1",
       overflow: "auto",
+      padding: "12px",
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+      borderRadius: "8px",
     },
     summaryTitle: {
-      fontSize: "1.2rem",
-      fontWeight: 600,
-      marginBottom: "10px",
+      fontSize: "1.4rem",
+      fontWeight: 700,
+      marginBottom: "15px",
       color: "#7C3AED",
+      paddingBottom: "8px",
+      borderBottom: "2px solid #334155",
+    },
+    pieChartContainer: {
+      width: "180px",
+      height: "180px",
+      display: "flex",
+      alignItems: "center",
+      transition: "transform 0.3s ease-in-out",
     },
     expenseSummary: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2, 1fr)",
+      gap: "12px",
+      width: "100%",
+      overflow: "auto",
+      ...(isMobile && {
+        gridTemplateColumns: "1fr",
+      }),
+    },
+    categoryItem: {
       display: "flex",
       justifyContent: "space-between",
-      width: "100%",
-      fontSize: "0.9rem",
-      overflow: "auto",
+      alignItems: "center",
+      padding: "10px 15px",
+      borderRadius: "6px",
+      backgroundColor: isHovered
+        ? "rgba(255, 255, 255, 0.05)"
+        : "rgba(255, 255, 255, 0.03)",
+    },
+    categoryName: {
+      fontSize: "0.95rem",
+      fontWeight: 500,
+      color: "#E2E8F0",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    },
+    categoryAmount: {
+      fontSize: "0.95rem",
+      fontWeight: 600,
+      color: "#00C49F",
     },
     totalExpense: {
-      fontSize: "1.5rem",
+      fontSize: "1.6rem",
       fontWeight: "bold",
       color: "#00C49F",
-      marginBottom: "15px",
+      marginBottom: "20px",
+      padding: "12px",
+      backgroundColor: "rgba(0, 196, 159, 0.1)",
+      borderRadius: "8px",
+      textAlign: "center",
+      ...(isMobile && {
+        fontSize: "1.3rem",
+      }),
     },
     analysisContainer: {
       flex: 1,
@@ -320,6 +369,16 @@ const ChatPage = () => {
       fontWeight: 600,
       boxShadow: "0 2px 4px rgba(0, 196, 159, 0.2)",
     },
+    tooltip: {
+      backgroundColor: "#1E293B",
+      color: "white",
+      padding: "8px 12px",
+      borderRadius: "6px",
+      fontSize: "14px",
+      fontWeight: "500",
+      boxShadow: "0 2px 6px rgba(0, 0, 0, 0.2)",
+      textAlign: "center",
+    },
   };
 
   const handleButtonHover = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -339,7 +398,9 @@ const ChatPage = () => {
             <div style={styles.analysisContainer}>
               <div style={styles.analysisText}>
                 {formattedAnalysis ? (
-                  <div dangerouslySetInnerHTML={{ __html: formattedAnalysis }} />
+                  <div
+                    dangerouslySetInnerHTML={{ __html: formattedAnalysis }}
+                  />
                 ) : analysis ? (
                   <pre style={{ whiteSpace: "pre-wrap" }}>{analysis}</pre>
                 ) : (
@@ -375,8 +436,12 @@ const ChatPage = () => {
                   fontWeight: 600,
                   boxShadow: "0 2px 4px rgba(124, 58, 237, 0.2)",
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#6D28D9"}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#7C3AED"}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#6D28D9")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#7C3AED")
+                }
               >
                 Upload PDF
               </button>
@@ -433,18 +498,44 @@ const ChatPage = () => {
               </ResponsiveContainer>
             </div>
             <div style={styles.bottomLeftBox}>
-              <div style={{ width: "40%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <PieChart width={150} height={150}>
+              <div
+                style={{
+                  ...styles.pieChartContainer,
+                  transform: isHovered ? "scale(1.2)" : "scale(1)",
+                  transition: "transform 0.3s ease-in-out",
+                }}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => {
+                  setIsHovered(false);
+                  setActiveIndex(null);
+                }}
+              >
+                <PieChart width={180} height={180}>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div style={styles.tooltip}>
+                            <strong>{payload[0].name}</strong>: $
+                            {Number(payload?.[0]?.value ?? 0).toFixed(2)}
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
                   <Pie
                     data={pieData}
-                    cx={75}
-                    cy={75}
-                    innerRadius={30}
-                    outerRadius={60}
+                    cx={90}
+                    cy={90}
+                    innerRadius={40}
+                    outerRadius={70}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     label={false}
+                    onMouseEnter={(_, index) => setActiveIndex(index)}
+                    onMouseLeave={() => setActiveIndex(null)}
                   >
                     {pieData.map((entry, index) => (
                       <Cell
@@ -452,35 +543,47 @@ const ChatPage = () => {
                         fill={COLORS[index % COLORS.length]}
                         stroke="rgba(255,255,255,0.3)"
                         strokeWidth={1}
+                        opacity={
+                          activeIndex === index || activeIndex === null
+                            ? 1
+                            : 0.6
+                        }
                       />
                     ))}
                   </Pie>
                 </PieChart>
               </div>
               <div style={{ ...styles.summaryContent, width: "60%" }}>
-                <div style={styles.summaryTitle}>Expense Summary</div>
+                <div style={styles.summaryTitle}>Expense Breakdown</div>
                 <div style={styles.totalExpense}>
                   Total: ${totalExpense.toFixed(2)}
                 </div>
-                <div style={{ ...styles.expenseSummary, maxHeight: "calc(100% - 80px)" }}>
-                  <div>
-                    {pieData
-                      .slice(0, Math.ceil(pieData.length / 2))
-                      .map((item, index) => (
-                        <p key={index} style={{ margin: "4px 0", color: "#E2E8F0" }}>
-                          {item.name}: ${item.value.toFixed(2)}
-                        </p>
-                      ))}
-                  </div>
-                  <div>
-                    {pieData
-                      .slice(Math.ceil(pieData.length / 2))
-                      .map((item, index) => (
-                        <p key={index} style={{ margin: "4px 0", color: "#E2E8F0" }}>
-                          {item.name}: ${item.value.toFixed(2)}
-                        </p>
-                      ))}
-                  </div>
+                <div
+                  style={{
+                    ...styles.expenseSummary,
+                    maxHeight: "calc(100% - 80px)",
+                  }}
+                >
+                  {pieData.map((item, index) => (
+                    <div
+                      key={index}
+                      style={styles.categoryItem}
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    >
+                      <span
+                        style={{
+                          ...styles.categoryName,
+                          color: COLORS[index % COLORS.length],
+                        }}
+                      >
+                        {item.name}
+                      </span>
+                      <span style={styles.categoryAmount}>
+                        ${item.value.toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

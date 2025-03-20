@@ -34,12 +34,21 @@ def allowed_file(filename):
 
 # Function to create a new MySQL connection
 def create_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="password",
-        database="BudgetWise"
-    )
+    """Create a database connection using the credentials from the .env file."""
+    connection = None
+    try:
+        connection = mysql.connector.connect(
+            host=os.getenv("MYSQLHOST"),
+            user=os.getenv("MYSQLUSER"),
+            password=os.getenv("MYSQLPASSWORD"),
+            database=os.getenv("MYSQLDATABASE"),
+            port=os.getenv("MYSQLPORT")
+        )
+        if connection.is_connected():
+            print("Connection to MySQL DB successful")
+    except Error as e:
+        print(f"The error '{e}' occurred")
+    return connection
 
 # User Signup Route
 @app.route('/api/signup', methods=['POST'])

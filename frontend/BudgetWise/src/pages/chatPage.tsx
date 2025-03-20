@@ -537,7 +537,7 @@ const ChatPage = () => {
                     onMouseEnter={(_, index) => setActiveIndex(index)}
                     onMouseLeave={() => setActiveIndex(null)}
                   >
-                    {pieData.map((entry, index) => (
+                    {pieData.map((_, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}

@@ -204,7 +204,7 @@ const styles = {
     padding: "10px 20px",
     fontSize: "16px",
     fontWeight: "bold",
-    textTransform: "uppercase",
+    textTransform: "uppercase" as const,
     zIndex: 10,
     display: "flex",
     alignItems: "center",
@@ -212,7 +212,7 @@ const styles = {
     transition: "color 0.3s ease",
   },
   tabText: {
-    position: "relative",
+    position: "relative" as 'relative',
     zIndex: 11,
   },
   cursor: {

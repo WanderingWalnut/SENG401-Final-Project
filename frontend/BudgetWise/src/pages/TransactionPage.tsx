@@ -45,7 +45,7 @@ const TransactionsPage = () => {
         const categories = Array.from(
           new Set(data.transactions.map((t: Transaction) => t.expense_category))
         );
-        setAvailableCategories(categories);
+        setAvailableCategories(categories as string[]);
       } catch (err) {
         setError("Failed to load transactions. Please try again later.");
       } finally {

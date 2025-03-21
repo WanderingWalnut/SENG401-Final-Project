@@ -1,4 +1,4 @@
-import  { useState, CSSProperties } from "react";
+import { useState, CSSProperties } from "react";
 import Navbar from "../components/ui/navbar";
 
 const UploadPage = () => {
@@ -49,7 +49,7 @@ const UploadPage = () => {
       return;
     }
 
-    setUploadStatus("Uploading and processing...");
+    setUploadStatus(" Uploading and processing...");
     setShowPopup(true);
 
     const formData = new FormData();
@@ -78,7 +78,7 @@ const UploadPage = () => {
 
       if (response.ok) {
         setUploadStatus(
-          `Success! Added ${data.transactions_count} transactions to your budget.`
+          ` Success! Added ${data.transactions_count} transactions to your budget.`
         );
         setSelectedFile(null);
 
@@ -102,7 +102,7 @@ const UploadPage = () => {
         setUploadStatus(data.error || "Upload failed. Please try again.");
       }
     } catch (error) {
-      setUploadStatus("Error processing file. Please try again.");
+      setUploadStatus(" Error processing file. Please try again.");
       console.error("Upload error:", error);
     }
 
@@ -199,7 +199,11 @@ const UploadPage = () => {
       fontSize: "14px",
     },
     status: {
-      color: uploadStatus.includes("Success") ? "#00C49F" : "#FF4444",
+      color: uploadStatus.includes("Success")
+        ? "#00C49F" // Green for success
+        : uploadStatus.includes("Uploading")
+        ? "#FFD700" // Yellow for uploading
+        : "#FF4444", // Red for errors
       marginTop: "10px",
       textAlign: "center",
       fontWeight: "500",
@@ -269,12 +273,18 @@ const UploadPage = () => {
           <div
             style={{
               ...styles.popup,
-              ...(uploadStatus.includes("Success")
-                ? styles.successPopup
-                : styles.errorPopup),
+              borderColor: uploadStatus.includes("Success")
+                ? "#00C49F" // Green
+                : uploadStatus.includes("Uploading")
+                ? "#FFD700" // Yellow for uploading
+                : "#FF4444", // Red for errors
             }}
           >
-            {uploadStatus.includes("Success") ? "✓" : "⚠️"}
+            {uploadStatus.includes("Success")
+              ? "✓"
+              : uploadStatus.includes("Uploading")
+              ? "⏳"
+              : "⚠️"}
             {uploadStatus}
           </div>
         )}

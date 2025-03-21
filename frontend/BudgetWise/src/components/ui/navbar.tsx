@@ -1,10 +1,4 @@
-import  {
-  Dispatch,
-  SetStateAction,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
+import { Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import profileIcon from "../../assets/profile.svg";
@@ -17,6 +11,7 @@ const Navbar = () => {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
+  const ulRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     const storedName = localStorage.getItem("user_name");
@@ -44,17 +39,34 @@ const Navbar = () => {
 
   return (
     <nav style={styles.navbarContainer}>
-          <img
-            src={Logo}
-            alt="Logo"
-            style={{ width: "100px", height: "100px", marginRight: "10px", transform: "rotate(-30deg)" }}  
-          />
+      <img
+        src={Logo}
+        alt="Logo"
+        style={{
+          width: "100px",
+          height: "100px",
+          marginRight: "10px",
+          transform: "rotate(-30deg)",
+        }}
+      />
       <div style={styles.navbarWrapper}>
-        
         <ul
+          ref={ulRef}
           style={styles.navbar}
           onMouseLeave={() => {
-            setPosition((prev) => ({ ...prev, opacity: 1 }));
+            if (ulRef.current && activeTab) {
+              const activeTabElement = Array.from(ulRef.current.children).find(
+                (child) => (child as HTMLElement).dataset.tabName === activeTab
+              ) as HTMLLIElement | undefined;
+
+              if (activeTabElement) {
+                setPosition({
+                  left: activeTabElement.offsetLeft,
+                  width: activeTabElement.offsetWidth,
+                  opacity: 1,
+                });
+              }
+            }
           }}
         >
           <Tab
@@ -134,6 +146,7 @@ const Tab = ({
   return (
     <li
       ref={ref}
+      data-tab-name={children}
       style={{
         ...styles.tab,
         color: activeTab === children ? "white" : "#94A3B8",
@@ -187,7 +200,7 @@ const styles = {
     flexGrow: 1,
   },
   navbar: {
-    position: "relative" as 'relative',
+    position: "relative" as "relative",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -199,7 +212,7 @@ const styles = {
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
   },
   tab: {
-    position: "relative" as 'relative',
+    position: "relative" as "relative",
     cursor: "pointer",
     padding: "10px 20px",
     fontSize: "16px",
@@ -212,11 +225,11 @@ const styles = {
     transition: "color 0.3s ease",
   },
   tabText: {
-    position: "relative" as 'relative',
+    position: "relative" as "relative",
     zIndex: 11,
   },
   cursor: {
-    position: "absolute" as 'absolute',
+    position: "absolute" as "absolute",
     height: "80%",
     backgroundColor: "#00C49F",
     borderRadius: "20px",
@@ -227,7 +240,7 @@ const styles = {
     alignItems: "center",
     cursor: "pointer",
     marginLeft: "auto",
-    position: "relative" as 'relative',
+    position: "relative" as "relative",
   },
   userName: {
     fontSize: "16px",
@@ -243,7 +256,7 @@ const styles = {
     padding: "8px",
   },
   dropdownMenu: {
-    position: "absolute" as 'absolute',
+    position: "absolute" as "absolute",
     top: "50px",
     right: "0",
     backgroundColor: "#1E293B",

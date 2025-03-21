@@ -1,9 +1,8 @@
 from dotenv import load_dotenv
 import os
 from openai import OpenAI
-import logging
-from database import get_db  # Import from database module
-
+import mysql.connector
+from mysql.connector import Error
 # Load environment variables
 load_dotenv()
 
@@ -16,9 +15,9 @@ class OpenAIService:
         Get transactions for a specific user from the database
         """
         try:
-            # Get database connection from singleton
-            db = get_db()
-            cursor = db.cursor(dictionary=True)
+            # Connect to the database
+            connection = self.create_connection()
+            cursor = connection.cursor(dictionary=True)
 
             # Fetch transactions for the user
             query = """
@@ -30,14 +29,15 @@ class OpenAIService:
             cursor.execute(query, (user_id,))
             transactions = cursor.fetchall()
 
-            # Close the cursor (connection remains open in pool)
+            # Close the connection
             cursor.close()
+            connection.close()
 
             return transactions
         
         except Exception as e:
-            logging.error(f"Error fetching transactions: {str(e)}")
-            raise Exception(f"Database error: {str(e)}")
+             print(f"Error fetching transactions: {str(e)}")
+             raise Exception(f"Database error: {str(e)}")
 
     def analyze_spending(self, user_id):
         """
@@ -54,7 +54,6 @@ class OpenAIService:
                     "spending_by_category": {}
                 }
             
-                
             # Format the transactions for the AI
             transaction_summary = ""
             total_spent = 0
@@ -645,12 +644,26 @@ Use markdown formatting to highlight key information. Make your response clear, 
             </div>
             """
             
+            return html
         except Exception as e:
-            logging.error(f"Error in analyze_spending: {str(e)}")
-            return {
-                "error": f"Analysis error: {str(e)}",
-                "total_spent": 0,
-                "spending_by_category": {}
-            }
+            print(f"Error formatting analysis: {str(e)}")
+            return f"<div class='error'>Error formatting analysis: {str(e)}</div>"
 
-    # Remove the create_connection method since we're using the singleton
+    def create_connection(self):
+        """Create a database connection using the credentials from the environment variables."""
+        connection = None
+        try:
+            connection = mysql.connector.connect(
+                host=os.getenv("MYSQLHOST"),  # Update with your deployed DB host
+                user=os.getenv("MYSQLUSER"),  # Update with your deployed DB user
+                password=os.getenv("MYSQLPASSWORD"),  # Update with your deployed DB password
+                database=os.getenv("MYSQLDATABASE"),  # Update with your deployed DB name
+                port=os.getenv("MYSQLPORT")  # Optional: Update with your deployed DB port
+            )
+            if connection.is_connected():
+                print("Connection to MySQL DB successful")
+        except Error as e:
+            print(f"The error '{e}' occurred")
+        return connection
+
+

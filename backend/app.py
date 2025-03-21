@@ -12,6 +12,7 @@ from collections import defaultdict
 from pdf_processor import PDFProcessor
 from dotenv import load_dotenv
 import logging
+import bcrypt
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173", "https://seng-401-final-project-ten.vercel.app", "https://seng-401-final-project-ten.vercel.app"])  # Adjust to match your frontend port
@@ -75,8 +76,12 @@ def signup():
             db.close()
             return jsonify({"error": "User already exists"}), 409
 
+        # Hash the password before storing it
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)", (name, email, password))
+        cursor.execute("INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)", 
+                       (name, email, hashed_password.decode('utf-8')))
         db.commit()
         
         cursor.close()
@@ -102,18 +107,22 @@ def login():
         cursor = db.cursor(dictionary=True)
 
         # Fetch user data by email
-        cursor.execute("SELECT id, name FROM users WHERE email = %s AND password_hash = %s", (email, password))
+        cursor.execute("SELECT id, name, password_hash FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
 
         cursor.close()
         db.close()
 
         if user:
-            return jsonify({
-                "message": "Login successful",
-                "user_id": user["id"],
-                "name": user["name"]
-            })
+            # Verify hashed password
+            if bcrypt.checkpw(password.encode('utf-8'), user["password_hash"].encode('utf-8')):
+                return jsonify({
+                    "message": "Login successful",
+                    "user_id": user["id"],
+                    "name": user["name"]
+                })
+            else:
+                return jsonify({"error": "Invalid email or password"}), 401
         else:
             return jsonify({"error": "Invalid email or password"}), 401
 

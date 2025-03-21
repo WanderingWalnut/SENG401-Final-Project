@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Grid,
   Paper,
@@ -77,8 +77,10 @@ const Login = () => {
       container
       sx={{
         minHeight: "100vh",
+        height: "100vh",
         background: "linear-gradient(135deg, #0F172A 0%, #1E293B 100%)",
         color: "#E2E8F0",
+        overflow: "hidden",
       }}
     >
       {/* Clickable Logo */}

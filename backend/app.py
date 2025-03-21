@@ -100,7 +100,7 @@ def signup():
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             cursor.execute(
                 "INSERT INTO users (name, email, password_hash) VALUES (%s, %s, %s)",
-                (name, email, hashed_password.decode('utf-8'))
+                (name, email, hashed_password.decode('utf-8')))
             db.commit()
             return jsonify({"message": "Signup successful"}), 201
 

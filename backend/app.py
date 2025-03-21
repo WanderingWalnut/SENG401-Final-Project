@@ -13,7 +13,7 @@ from pdf_processor import PDFProcessor
 from dotenv import load_dotenv
 import logging
 
-from database import get_db, close_db_connection
+from database import DatabaseConnection, get_db, close_db_connection
 
 import bcrypt
 
@@ -253,4 +253,4 @@ if __name__ == "__main__":
     try:
         app.run(debug=True, port=5001, host='0.0.0.0')
     finally:
-        DatabaseConnection.close_connection()
+        DatabaseConnection.close_db_connection()

@@ -216,6 +216,9 @@ const ChatPage = () => {
       padding: "20px",
       backgroundColor: "#1E293B",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
+      ...(isMobile && {
+        minHeight: "250px",
+      }),
     },
     bottomLeftBox: {
       flex: 1,

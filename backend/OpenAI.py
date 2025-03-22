@@ -3,12 +3,20 @@ import os
 from openai import OpenAI
 import mysql.connector
 from mysql.connector import Error
+from database import get_db
+
 # Load environment variables
 load_dotenv()
 
 class OpenAIService:
-    def __init__(self):
-        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+       
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(OpenAIService, cls).__new__(cls)
+            cls._instance.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        return cls._instance
 
     def get_user_transactions(self, user_id):
         """
@@ -16,7 +24,7 @@ class OpenAIService:
         """
         try:
             # Connect to the database
-            connection = self.create_connection()
+            connection = get_db()
             cursor = connection.cursor(dictionary=True)
 
             # Fetch transactions for the user
@@ -31,7 +39,7 @@ class OpenAIService:
 
             # Close the connection
             cursor.close()
-            connection.close()
+            # connection.close()
 
             return transactions
         
@@ -146,7 +154,7 @@ Use markdown formatting to highlight key information. Make your response clear, 
                         "content": prompt
                     }
                 ],
-                max_tokens=1000,  # Increased token limit
+                max_tokens=1000,  
                 temperature=0.7
             )
 
@@ -648,22 +656,5 @@ Use markdown formatting to highlight key information. Make your response clear, 
         except Exception as e:
             print(f"Error formatting analysis: {str(e)}")
             return f"<div class='error'>Error formatting analysis: {str(e)}</div>"
-
-    def create_connection(self):
-        """Create a database connection using the credentials from the environment variables."""
-        connection = None
-        try:
-            connection = mysql.connector.connect(
-                host=os.getenv("MYSQLHOST"),  # Update with your deployed DB host
-                user=os.getenv("MYSQLUSER"),  # Update with your deployed DB user
-                password=os.getenv("MYSQLPASSWORD"),  # Update with your deployed DB password
-                database=os.getenv("MYSQLDATABASE"),  # Update with your deployed DB name
-                port=os.getenv("MYSQLPORT")  # Optional: Update with your deployed DB port
-            )
-            if connection.is_connected():
-                print("Connection to MySQL DB successful")
-        except Error as e:
-            print(f"The error '{e}' occurred")
-        return connection
 
 

@@ -228,7 +228,7 @@ const ChatPage = () => {
       padding: "20px",
       backgroundColor: "#1E293B",
       boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.2)",
-      ...(isMobile && { maxWidth: "100%" }),
+      ...(isMobile && { maxWidth: "100%", justifyContent: "center" }),
     },
     rightSection: {
       flex: "2",
@@ -498,61 +498,63 @@ const ChatPage = () => {
               </ResponsiveContainer>
             </div>
             <div style={styles.bottomLeftBox}>
-              <div
-                style={{
-                  ...styles.pieChartContainer,
-                  transform: isHovered ? "scale(1.2)" : "scale(1)",
-                  transition: "transform 0.3s ease-in-out",
-                }}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => {
-                  setIsHovered(false);
-                  setActiveIndex(null);
-                }}
-              >
-                <PieChart width={180} height={180}>
-                  <Tooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div style={styles.tooltip}>
-                            <strong>{payload[0].name}</strong>: $
-                            {Number(payload?.[0]?.value ?? 0).toFixed(2)}
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Pie
-                    data={pieData}
-                    cx={90}
-                    cy={90}
-                    innerRadius={40}
-                    outerRadius={70}
-                    fill="#8884d8"
-                    dataKey="value"
-                    paddingAngle={2}
-                    label={false}
-                    onMouseEnter={(_, index) => setActiveIndex(index)}
-                    onMouseLeave={() => setActiveIndex(null)}
-                  >
-                    {pieData.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                        stroke="rgba(255,255,255,0.3)"
-                        strokeWidth={1}
-                        opacity={
-                          activeIndex === index || activeIndex === null
-                            ? 1
-                            : 0.6
+              {!isMobile && (
+                <div
+                  style={{
+                    ...styles.pieChartContainer,
+                    transform: isHovered ? "scale(1.2)" : "scale(1)",
+                    transition: "transform 0.3s ease-in-out",
+                  }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => {
+                    setIsHovered(false);
+                    setActiveIndex(null);
+                  }}
+                >
+                  <PieChart width={180} height={180}>
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div style={styles.tooltip}>
+                              <strong>{payload[0].name}</strong>: $
+                              {Number(payload?.[0]?.value ?? 0).toFixed(2)}
+                            </div>
+                          );
                         }
-                      />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </div>
+                        return null;
+                      }}
+                    />
+                    <Pie
+                      data={pieData}
+                      cx={90}
+                      cy={90}
+                      innerRadius={40}
+                      outerRadius={70}
+                      fill="#8884d8"
+                      dataKey="value"
+                      paddingAngle={2}
+                      label={false}
+                      onMouseEnter={(_, index) => setActiveIndex(index)}
+                      onMouseLeave={() => setActiveIndex(null)}
+                    >
+                      {pieData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                          stroke="rgba(255,255,255,0.3)"
+                          strokeWidth={1}
+                          opacity={
+                            activeIndex === index || activeIndex === null
+                              ? 1
+                              : 0.6
+                          }
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </div>
+              )}
               <div style={{ ...styles.summaryContent, width: "60%" }}>
                 <div style={styles.summaryTitle}>Expense Breakdown</div>
                 <div style={styles.totalExpense}>

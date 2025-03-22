@@ -1,6 +1,7 @@
 import { Dispatch, SetStateAction, useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 import profileIcon from "../../assets/profile.svg";
 import Logo from "../../assets/logo.min.svg";
 
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userName, setUserName] = useState<string | null>(null);
   const ulRef = useRef<HTMLUListElement>(null);
+  const isMobile = useMediaQuery({ maxWidth: 768 });
 
   useEffect(() => {
     const storedName = localStorage.getItem("user_name");
@@ -37,6 +39,14 @@ const Navbar = () => {
     window.location.reload();
   };
 
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setDropdownOpen(false);
+    setActiveTab(
+      path === "/chat" ? "Home" : path === "/upload" ? "Upload" : "Transactions"
+    );
+  };
+
   return (
     <nav style={styles.navbarContainer}>
       <img
@@ -49,53 +59,58 @@ const Navbar = () => {
           transform: "rotate(-30deg)",
         }}
       />
-      <div style={styles.navbarWrapper}>
-        <ul
-          ref={ulRef}
-          style={styles.navbar}
-          onMouseLeave={() => {
-            if (ulRef.current && activeTab) {
-              const activeTabElement = Array.from(ulRef.current.children).find(
-                (child) => (child as HTMLElement).dataset.tabName === activeTab
-              ) as HTMLLIElement | undefined;
+      {!isMobile && (
+        <div style={styles.navbarWrapper}>
+          <ul
+            ref={ulRef}
+            style={styles.navbar}
+            onMouseLeave={() => {
+              if (ulRef.current && activeTab) {
+                const activeTabElement = Array.from(
+                  ulRef.current.children
+                ).find(
+                  (child) =>
+                    (child as HTMLElement).dataset.tabName === activeTab
+                ) as HTMLLIElement | undefined;
 
-              if (activeTabElement) {
-                setPosition({
-                  left: activeTabElement.offsetLeft,
-                  width: activeTabElement.offsetWidth,
-                  opacity: 1,
-                });
+                if (activeTabElement) {
+                  setPosition({
+                    left: activeTabElement.offsetLeft,
+                    width: activeTabElement.offsetWidth,
+                    opacity: 1,
+                  });
+                }
               }
-            }
-          }}
-        >
-          <Tab
-            setPosition={setPosition}
-            onClick={() => navigate("/chat")}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
+            }}
           >
-            Home
-          </Tab>
-          <Tab
-            setPosition={setPosition}
-            onClick={() => navigate("/upload")}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          >
-            Upload
-          </Tab>
-          <Tab
-            setPosition={setPosition}
-            onClick={() => navigate("/transactions")}
-            setActiveTab={setActiveTab}
-            activeTab={activeTab}
-          >
-            Transactions
-          </Tab>
-          <Cursor position={position} />
-        </ul>
-      </div>
+            <Tab
+              setPosition={setPosition}
+              onClick={() => navigate("/chat")}
+              setActiveTab={setActiveTab}
+              activeTab={activeTab}
+            >
+              Home
+            </Tab>
+            <Tab
+              setPosition={setPosition}
+              onClick={() => navigate("/upload")}
+              setActiveTab={setActiveTab}
+              activeTab={activeTab}
+            >
+              Upload
+            </Tab>
+            <Tab
+              setPosition={setPosition}
+              onClick={() => navigate("/transactions")}
+              setActiveTab={setActiveTab}
+              activeTab={activeTab}
+            >
+              Transactions
+            </Tab>
+            <Cursor position={position} />
+          </ul>
+        </div>
+      )}
       <div style={styles.profileContainer} onClick={toggleDropdown}>
         {userName ? (
           <span style={styles.userName}>{userName}</span>
@@ -105,6 +120,37 @@ const Navbar = () => {
         <img src={profileIcon} alt="Profile" style={styles.profileIcon} />
         {dropdownOpen && (
           <div style={styles.dropdownMenu}>
+            {isMobile && (
+              <>
+                <div
+                  style={{
+                    ...styles.dropdownItem,
+                    color: activeTab === "Home" ? "#00C49F" : "#E2E8F0",
+                  }}
+                  onClick={() => handleNavigation("/chat")}
+                >
+                  Home
+                </div>
+                <div
+                  style={{
+                    ...styles.dropdownItem,
+                    color: activeTab === "Upload" ? "#00C49F" : "#E2E8F0",
+                  }}
+                  onClick={() => handleNavigation("/upload")}
+                >
+                  Upload
+                </div>
+                <div
+                  style={{
+                    ...styles.dropdownItem,
+                    color: activeTab === "Transactions" ? "#00C49F" : "#E2E8F0",
+                  }}
+                  onClick={() => handleNavigation("/transactions")}
+                >
+                  Transactions
+                </div>
+              </>
+            )}
             <div style={styles.logoutOption} onClick={handleSignOut}>
               Sign Out
             </div>
@@ -263,9 +309,17 @@ const styles = {
     border: "1px solid #334155",
     boxShadow: "0 4px 8px rgba(0, 0, 0, 0.15)",
     borderRadius: "8px",
-    width: "150px",
+    width: "200px",
     padding: "10px 0",
     zIndex: 100,
+  },
+  dropdownItem: {
+    padding: "12px",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    ":hover": {
+      backgroundColor: "rgba(255, 255, 255, 0.05)",
+    },
   },
   logoutOption: {
     padding: "12px",
